@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./index.js localhost 8080"
+    "dev": "nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "firebase-admin": "^11.0.0",
+    "firebase-auth": "^0.1.2",
+    "mongoose": "^6.4.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
