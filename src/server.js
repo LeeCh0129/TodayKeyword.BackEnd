@@ -7,6 +7,7 @@ import path from "path";
 const app = express();
 const logger = morgan("dev");
 const PORT = process.env.PORT || 4000;
+const path = require("path");
 
 app.use(logger);
 app.use(express.json());
