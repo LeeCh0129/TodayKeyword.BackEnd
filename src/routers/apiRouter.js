@@ -1,16 +1,44 @@
-const express = require("express");
-const router = express.Router();
-const admin = require("firebase-admin");
+import express from "express";
+import axios from "axios";
+import User from "../models/User";
+import { ensureAuthorized } from "../middlewares";
+// import admin from "../firebase";
 
-router.get("/user", async (req, res) => {
-  const firebaseToken = req.headers.authorization?.split(" ")[1];
-  let firebaseUser;
-  if (firebaseToken) {
-    firebaseUser = await admin.auth().verifyIdToken(firebaseToken);
+const router = express.Router();
+
+router.post("/user/signIn", async (req, res) => {
+  const response = await postFirebaseFunction(req.body);
+  const customToken = response.data;
+  console.log("커스텀 토큰 : ", customToken);
+  if (!customToken) {
+    return res
+      .status(400)
+      .json({ errorMessage: "데이터가 올바르지 않습니다." });
   }
-  //   uid = req.headers.authorization;
-  //   console.log(await admin.auth().verifyIdToken(uid));
-  return res.send("bye");
+  const exists = await User.exists({ firebaseId: req.body.uid });
+  if (!exists) {
+    const createdUser = await User.create({
+      service: req.body.service,
+      email: req.body.email,
+      firebaseId: req.body.uid,
+    });
+    console.log(`유저 생성 완료 ${createdUser}`);
+  }  return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
 });
 
-module.exports = router;
+router.get("/user/myProfile", ensureAuthorized, async (req, res) => {
+  console.log(req.user);
+  const user = await User.findOne({ firebaseId: req.user.uid });
+  console.log("몽고DB: ", user);
+  res.status(200).json(user);
+});
+
+const postFirebaseFunction = (user) =>
+  axios
+    .post(
+      "https://us-central1-todaykeyword.cloudfunctions.net/createCustomToken",
+      user
+    )
+    .catch((error) => console.log(error));
+
+export default router;
