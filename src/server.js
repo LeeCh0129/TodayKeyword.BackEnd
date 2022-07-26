@@ -2,10 +2,12 @@ import "./db.js";
 import express from "express";
 import morgan from "morgan";
 import apiRouter from "./routers/apiRouter.js";
+import path from "path";
 
 const app = express();
 const logger = morgan("dev");
 const PORT = process.env.PORT || 4000;
+const __dirname = path.resolve();
 
 app.use(logger);
 app.use(express.json());

@@ -1,7 +1,7 @@
 import express from "express";
 import axios from "axios";
-import User from "../models/User.js";
-import { ensureAuthorized } from "../middlewares.js";
+import User from "../models/User";
+import { ensureAuthorized } from "../middlewares";
 // import admin from "../firebase";
 
 const router = express.Router();
