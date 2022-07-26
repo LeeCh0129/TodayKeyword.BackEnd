@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node build/server.js",
-    "build": "babel src -d build"
+    "start": "nodemon"
   },
   "author": "",
+  "type": "module",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
@@ -23,7 +23,6 @@
     "@babel/core": "^7.18.9",
     "@babel/node": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
-    "babel-cli": "^6.26.0",
     "nodemon": "^2.0.19"
   }
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import axios from "axios";
-import User from "../models/User";
-import { ensureAuthorized } from "../middlewares";
+import User from "../models/User.js";
+import { ensureAuthorized } from "../middlewares.js";
 // import admin from "../firebase";
 
 const router = express.Router();
@@ -23,7 +23,8 @@ router.post("/user/signIn", async (req, res) => {
       firebaseId: req.body.uid,
     });
     console.log(`유저 생성 완료 ${createdUser}`);
-  }  return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
+  }
+  return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
 });
 
 router.get("/user/myProfile", ensureAuthorized, async (req, res) => {

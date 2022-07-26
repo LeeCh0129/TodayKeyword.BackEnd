@@ -1,4 +1,4 @@
-import firebaseAdmin from "./firebase";
+import firebaseAdmin from "./firebase.js";
 
 export const ensureAuthorized = async (req, res, next) => {
   try {
