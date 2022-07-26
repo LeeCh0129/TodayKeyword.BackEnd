@@ -5,6 +5,7 @@ import apiRouter from "./routers/apiRouter.js";
 
 const app = express();
 const logger = morgan("dev");
+const PORT = process.env.PORT || 4000;
 
 app.use(logger);
 app.use(express.json());
@@ -17,6 +18,6 @@ app.get("/map", (req, res) => {
 });
 app.use("/api", apiRouter);
 
-app.listen(4000, function () {
-  console.log("✅ 서버 열림 localhost:4000");
+app.listen(PORT, function () {
+  console.log(`✅ 서버 열림 port:${PORT}`);
 });
