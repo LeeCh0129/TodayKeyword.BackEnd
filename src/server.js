@@ -7,7 +7,6 @@ import path from "path";
 const app = express();
 const logger = morgan("dev");
 const PORT = process.env.PORT || 4000;
-const __dirname = path.resolve();
 
 app.use(logger);
 app.use(express.json());
@@ -16,7 +15,8 @@ app.get("/", (req, res) => {
   return res.send("hi");
 });
 app.get("/map", (req, res) => {
-  return res.sendFile(__dirname + "/views/naver_map.html");
+  const map = path.join(__dirname, "views", "naver_map.html");
+  res.sendFile(map);
 });
 app.use("/api", apiRouter);
 
