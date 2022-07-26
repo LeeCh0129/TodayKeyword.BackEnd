@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon"
+    "start": "node build/init.js",
+    "build": "babel src -d build"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "@babel/core": "^7.18.9",
     "@babel/node": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
+    "babel-cli": "^6.26.0",
     "nodemon": "^2.0.19"
   }
 }
