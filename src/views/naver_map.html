@@ -12,31 +12,29 @@
 
 <script>
     var infowindow = new naver.maps.InfoWindow();
-var map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(37.5666805, 126.9784147),
-    zoom: 10,
-    mapTypeId: naver.maps.MapTypeId.NORMAL
-});
-function setGeolocation(position){
-    var location = new naver.maps.LatLng(position.latitude,position.longitude);
-    map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-    map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+    var map = new naver.maps.Map('map', {
+        center: new naver.maps.LatLng(37.5666805, 126.9784147),
+        zoom: 10,
+        mapTypeId: naver.maps.MapTypeId.NORMAL
+    });
+    function setGeolocation(position){
+        var location = new naver.maps.LatLng(position.latitude,position.longitude);
+        map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
+        map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
 
-    infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
-    const markerOptions = {
-        position: position.destinationPoint(position.latitude, position.longitude);
-        map: map,
-        icon: {
-            url: "https://appstickers-cdn.appadvice.com/1234832159/825976844/65f0edd80bc00993662746df6c4961d4-0.png",
-            size: new naver.maps.Size(50,52),
-            origin: new naver.maps.Point(0, 0),
-            anchor: new naver.maps.Point(025, 26)
-        }
+        infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
+        const markerOptions = {
+            position: position.destinationPoint(position.latitude, position.longitude),
+            map: map,
+            icon: {
+                url: "https://appstickers-cdn.appadvice.com/1234832159/825976844/65f0edd80bc00993662746df6c4961d4-0.png",
+                size: new naver.maps.Size(50,52),
+                origin: new naver.maps.Point(0, 0),
+            }
     };
-    const marker = new naver.maps.Marker(markerOptions);
     infowindow.open(map, location);
     console.log('Coordinates: ' + location.toString());
-}
+    }
 </script>
 </body>
 </html>
