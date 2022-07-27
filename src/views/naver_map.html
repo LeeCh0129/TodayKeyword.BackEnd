@@ -23,7 +23,17 @@ function setGeolocation(position){
     map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
 
     infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
-
+    const markerOptions = {
+        position: position.destinationPoint(position.latitude, position.longitude);
+        map: map,
+        icon: {
+            url: "https://appstickers-cdn.appadvice.com/1234832159/825976844/65f0edd80bc00993662746df6c4961d4-0.png",
+            size: new naver.maps.Size(50,52),
+            origin: new naver.maps.Point(0, 0),
+            anchor: new naver.maps.Point(025, 26)
+        }
+    };
+    const marker = new naver.maps.Marker(markerOptions);
     infowindow.open(map, location);
     console.log('Coordinates: ' + location.toString());
 }
