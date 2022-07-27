@@ -24,7 +24,7 @@
 
         infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
         const markerOptions = {
-            position: position.destinationPoint(90, 15),
+            position: location.destinationPoint(location.latitude, location.longitude),
             map: map,
             icon: {
                 url: "https://appstickers-cdn.appadvice.com/1234832159/825976844/65f0edd80bc00993662746df6c4961d4-0.png",
