@@ -12,6 +12,7 @@
 
 <script>
     var infowindow = new naver.maps.InfoWindow();
+    var position = new naver.maps.LatLng(37.3849483, 127.1229117);
     var map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(37.5666805, 126.9784147),
         zoom: 10,
@@ -21,21 +22,22 @@
         var location = new naver.maps.LatLng(position.latitude,position.longitude);
         map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
         map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
-
         infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
-        const markerOptions = {
-            position: location.destinationPoint(location.latitude, location.longitude),
-            map: map,
-            icon: {
-                url: "https://appstickers-cdn.appadvice.com/1234832159/825976844/65f0edd80bc00993662746df6c4961d4-0.png",
-                size: new naver.maps.Size(50,52),
-                origin: new naver.maps.Point(0, 0),
-            }
-        };
         infowindow.open(map, location);
         console.log('Coordinates: ' + location.toString());
-        var marker = new naver.maps.Marker(markerOptions);
     }
+    var markerOptions = {
+        position: position.destinationPoint(90, 15),
+        map: map,
+        icon: {
+            content: '<img src="http://monthly.chosun.com/up_fd/Mdaily/2017-09/bimg_thumb/2017042000056_0.jpg" alt="" ' +
+                 'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+                 '-webkit-user-select: none; position: absolute; width: 22px; height: 35px; left: 0px; top: 0px;">',
+            size: new naver.maps.Size(22, 35),
+            anchor: new naver.maps.Point(11, 35)
+        }
+    };
+    var marker = new naver.maps.Marker(markerOptions);
 </script>
 </body>
 </html>
