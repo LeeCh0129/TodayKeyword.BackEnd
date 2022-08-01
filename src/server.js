@@ -1,26 +1,29 @@
 import "./db.js";
 import express from "express";
 import morgan from "morgan";
-import apiRouter from "./routers/apiRouter.js";
-import path from "path";
+import userRouter from "./routers/userRouter.js";
+import postRouter from "./routers/postRouter.js";
+import "dotenv/config";
 
 const app = express();
 const logger = morgan("dev");
 const PORT = process.env.PORT || 4000;
-const __dirname = path.resolve();
 
 app.use(logger);
-app.use(express.json());
 app.use(express.static("./views"));
 app.use("/assets", express.static("assets"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 app.get("/", (req, res) => {
-  return res.send("hi");
+  return res.send("Welcome to TodayKeyword");
 });
+
 app.get("/map", (req, res) => {
   res.sendFile(process.cwd() + "/src/views/naver_map.html");
 });
-app.use("/api", apiRouter);
-
+app.use("/user", userRouter);
+app.use("/post", postRouter);
 app.listen(PORT, function () {
   console.log(`✅ 서버 열림 port:${PORT}`);
 });

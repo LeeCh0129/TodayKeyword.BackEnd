@@ -1,43 +1,279 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+    />
     <title>간단한 지도 표시하기</title>
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=bm5nunvsxk"></script>
-</head>
-<body>
-<div id="map" style="width:100%;height:400px;"></div>
-
-<script>
-    var infowindow = new naver.maps.InfoWindow();
-    var position = new naver.maps.LatLng(37.397219, 127.291025);
-    var map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(37.5666805, 126.9784147),
-        zoom: 10,
-        mapTypeId: naver.maps.MapTypeId.NORMAL
+    <script
+      type="text/javascript"
+      src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=bm5nunvsxk&submodules=geocoder"
+    ></script>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 500px"></div>
+  </body>
+  <script>
+    var infoWindow = new naver.maps.InfoWindow({
+      anchorSkew: true,
     });
-    function setGeolocation(position){
-        var location = new naver.maps.LatLng(position.latitude,position.longitude);
-        map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-        map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
-        infowindow.setContent('<div style="padding:20px;">' + '내 위치 😎' + '</div>');
-        infowindow.open(map, location);
-        console.log('Coordinates: ' + location.toString());
+
+    var markers = [],
+      infoWindows = [];
+
+    var map = new naver.maps.Map("map", {
+      center: new naver.maps.LatLng(37.5666805, 126.9784147),
+      zoom: 10,
+      mapTypeId: naver.maps.MapTypeId.NORMAL,
+      zoomControl: true,
+      zoomControlOptions: {
+        position: naver.maps.Position.RIGHT_BOTTOM,
+      },
+    });
+    var bounds = map.getBounds(),
+      southWest = bounds.getSW(),
+      northEast = bounds.getNE(),
+      lngSpan = northEast.lng() - southWest.lng(),
+      latSpan = northEast.lat() - southWest.lat();
+
+    function setGeolocation(position) {
+      //내 위치로 이동
+      var location = new naver.maps.LatLng(
+        position.latitude,
+        position.longitude
+      );
+      map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
+      map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+      infowindow.setContent("<span>" + "내 위치 😎" + "</span>");
+      infowindow.open(map, location);
+      console.log("Coordinates: " + location.toString());
     }
-    var markerOptions = {
-        position: position.destinationPoint(0, 0),
-        map: map,
-        icon: {
-            content: '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
-                 'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
-                 '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
+
+    function setMarkers(markerList) {
+      for (var key in markerList) {
+        var position = new naver.maps.LatLng(
+          markerList[key][0],
+          markerList[key][1]
+        );
+        var marker = new naver.maps.Marker({
+          map: map,
+          position: position,
+          title: key,
+          icon: {
+            content:
+              '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
+              'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+              '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
             size: new naver.maps.Size(22, 35),
-            anchor: new naver.maps.Point(11, 35)
+            anchor: new naver.maps.Point(11, 35),
+          },
+          zIndex: 100,
+        });
+        var infoWindow = new naver.maps.InfoWindow({
+          content: "<div>" + key + "</div>",
+        });
+        markers.push(marker);
+        infoWindows.push(infoWindow);
+      }
+      for (var i = 0, ii = markers.length; i < ii; i++) {
+        naver.maps.Event.addListener(markers[i], "click", getClickHandler(i));
+      }
+    }
+
+    naver.maps.Event.addListener(map, "idle", function () {
+      updateMarkers(map, markers);
+    });
+
+    function updateMarkers(map, markers) {
+      var mapBounds = map.getBounds();
+      var marker, position;
+
+      for (var i = 0; i < markers.length; i++) {
+        marker = markers[i];
+        position = marker.getPosition();
+
+        if (mapBounds.hasLatLng(position)) {
+          showMarker(map, marker);
+        } else {
+          hideMarker(map, marker);
         }
-    };
-    var marker = new naver.maps.Marker(markerOptions);
-</script>
-</body>
+      }
+    }
+
+    function showMarker(map, marker) {
+      if (marker.getMap()) return;
+      marker.setMap(map);
+    }
+
+    function hideMarker(map, marker) {
+      if (!marker.getMap()) return;
+      marker.setMap(null);
+    }
+    // var markerOptions = {
+    //   position: position.destinationPoint(0, 0),
+    //   map: map,
+    //   icon: {
+    // content:
+    //   '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
+    //   'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+    //   '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
+    // size: new naver.maps.Size(22, 35),
+    // anchor: new naver.maps.Point(11, 35),
+    //   },
+    // };
+
+    // var marker = new naver.maps.Marker(markerOptions); //옵션의 마커 찍기
+
+    // 클릭 위치 가져오기
+    function initGeocoder() {
+      var latlng = map.getCenter();
+      infoWindow = new naver.maps.InfoWindow({
+        content: "",
+      });
+      map.addListener("click", function (e) {
+        if (infoWindow.getMap()) {
+          infoWindow.close();
+        } else {
+          searchCoordinateToAddress(e.coord);
+        }
+      });
+    }
+
+    function searchCoordinateToAddress(latlng) {
+      naver.maps.Service.reverseGeocode(
+        {
+          coords: latlng,
+          orders: [
+            naver.maps.Service.OrderType.ADDR,
+            naver.maps.Service.OrderType.ROAD_ADDR,
+          ].join(","),
+        },
+        function (status, response) {
+          if (status === naver.maps.Service.Status.ERROR) {
+            return alert("❌ 에러 발생");
+          }
+
+          var items = response.v2.results,
+            address = "",
+            htmlAddresses = [];
+
+          for (var i = 0, ii = items.length, item, addrType; i < ii; i++) {
+            item = items[i];
+            address = makeAddress(item) || "";
+            addrType =
+              item.name === "roadaddr" ? "[도로명 주소]" : "[지번 주소]";
+
+            htmlAddresses.push(i + 1 + ". " + addrType + " " + address);
+          }
+
+          infoWindow.setContent(
+            [
+              '<div style="padding:10px;min-width:150px;line-height:100%;">',
+              '<h4 style="margin-top:5px;">검색 좌표' + latlng + "</h4><br />",
+              htmlAddresses.join("<br />"),
+              "</div>",
+            ].join("\n")
+          );
+
+          infoWindow.open(map, latlng);
+        }
+      );
+    }
+
+    function makeAddress(item) {
+      if (!item) {
+        return;
+      }
+
+      var name = item.name,
+        region = item.region,
+        land = item.land,
+        isRoadAddress = name === "roadaddr";
+
+      var sido = "",
+        sigugun = "",
+        dongmyun = "",
+        ri = "",
+        rest = "";
+
+      if (hasArea(region.area1)) {
+        sido = region.area1.name;
+      }
+
+      if (hasArea(region.area2)) {
+        sigugun = region.area2.name;
+      }
+
+      if (hasArea(region.area3)) {
+        dongmyun = region.area3.name;
+      }
+
+      if (hasArea(region.area4)) {
+        ri = region.area4.name;
+      }
+
+      if (land) {
+        if (hasData(land.number1)) {
+          if (hasData(land.type) && land.type === "2") {
+            rest += "산";
+          }
+
+          rest += land.number1;
+
+          if (hasData(land.number2)) {
+            rest += "-" + land.number2;
+          }
+        }
+
+        if (isRoadAddress === true) {
+          if (checkLastString(dongmyun, "면")) {
+            ri = land.name;
+          } else {
+            dongmyun = land.name;
+            ri = "";
+          }
+
+          if (hasAddition(land.addition0)) {
+            rest += " " + land.addition0.value;
+          }
+        }
+      }
+
+      return [sido, sigugun, dongmyun, ri, rest].join(" ");
+    }
+
+    function hasArea(area) {
+      return !!(area && area.name && area.name !== "");
+    }
+
+    function hasData(data) {
+      return !!(data && data !== "");
+    }
+
+    function checkLastString(word, lastString) {
+      return new RegExp(lastString + "$").test(word);
+    }
+
+    function hasAddition(addition) {
+      return !!(addition && addition.value);
+    }
+
+    function getClickHandler(seq) {
+      return function (e) {
+        var marker = markers[seq],
+          infoWindow = infoWindows[seq];
+        if (infoWindow.getMap()) {
+          infoWindow.close();
+        } else {
+          infoWindow.open(map, marker);
+          map.setCenter(marker.position);
+          map.setZoom(15);
+        }
+      };
+    }
+
+    naver.maps.onJSContentLoaded = initGeocoder;
+  </script>
 </html>
