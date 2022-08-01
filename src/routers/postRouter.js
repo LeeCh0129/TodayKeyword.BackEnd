@@ -46,7 +46,7 @@ postRouter.post(
     });
     res.json(newComment);
   }
-); //게시글 업데이트
+); //댓글 수정
 
 postRouter.get("/:postId([0-9a-f]{24})/comment", async (req, res) => {
   const { postId } = req.params;
