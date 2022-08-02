@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     avatar: { type: String },
     state: { type: String, default: "active" },
-    name: { type: String, required: true },
+    name: { type: String },
     likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   },
