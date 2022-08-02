@@ -24,6 +24,6 @@ export const uploadS3 = multer({
       const imageName = "images/" + `${uuidv4()}`;
       callBack(null, imageName);
     },
-    limits: { fileSize: 10000000 },
+    limits: { fileSize: 2000000 },
   }),
 });
