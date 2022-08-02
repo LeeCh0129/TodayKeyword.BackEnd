@@ -2,10 +2,10 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Comment from "../models/Comment.js";
 import express from "express";
-import { uploadS3 } from "../s3";
+import { uploadS3 } from "../s3.js";
 import multer from "multer";
-import { ensureAuthorized } from "../middlewares";
-import { getPost } from "../controller/postController";
+import { ensureAuthorized } from "../middlewares.js";
+import { getPost } from "../controller/postController.js";
 const upload = multer({ storage: multer.memoryStorage() });
 const postRouter = express.Router();
 

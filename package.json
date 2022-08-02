@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type":"module",
   "scripts": {
     "start": "node src/server.js",
-    "build": "babel src -d build",
     "dev": "nodemon"
   },
   "author": "",
