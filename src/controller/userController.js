@@ -2,7 +2,6 @@ import axios from "axios";
 import User from "../models/User.js";
 
 export const signIn = async (req, res) => {
-  console.log(req);
   const response = await postFirebaseFunction(req.body);
   const customToken = response.data;
   if (!customToken) {
