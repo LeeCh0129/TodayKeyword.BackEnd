@@ -20,7 +20,12 @@ const postSchema = new mongoose.Schema(
       validate: [keywordArrayLimit, "키워드는 최소 1개에서 최대 3개입니다."],
     },
   },
-  { timestamps: true }
+  {
+    versionKey: false,
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
 );
 
 function keywordArrayLimit(val) {
@@ -30,13 +35,12 @@ function keywordArrayLimit(val) {
 function imageArrayLimit(val) {
   return val.length <= 5 && val.length >= 1;
 }
-postSchema.set("toObject", { virtuals: true });
-postSchema.set("toJSON", { virtuals: true });
 
 postSchema.virtual("comments", {
   ref: "Comment",
   localField: "_id",
   foreignField: "post",
+  match: { parentComment: null },
 });
 
 const Post = mongoose.model("Post", postSchema);

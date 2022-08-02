@@ -1,14 +1,22 @@
 import Post from "../models/Post.js";
-import User from "../models/User.js";
 import Comment from "../models/Comment.js";
 
 export const getPost = async (req, res) => {
-  const posts = await Post.find({});
-  let newPosts = [];
-  posts.forEach(async (post) => {
-    post.comments = await Comment.find({ post: post.id });
-    console.log(post);
-  });
+  const posts = await Post.find({})
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: [
+        {
+          path: "childComments",
+          model: "Comment",
+          populate: { path: "owner", model: "User" },
+        },
+        { path: "owner", mode: "User" },
+      ],
+    })
+    .populate({ path: "owner" });
+  console.log(posts);
   res.json({ posts });
 };
 
@@ -25,7 +33,6 @@ export const postCreatePost = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   const { commentId } = req.params;
-  const { comment } = req.body;
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     isDeleted: true,
   });

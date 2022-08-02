@@ -4,7 +4,6 @@ export const ensureAuthorized = async (req, res, next) => {
   try {
     const bearer = req.headers["authorization"].split(" ");
     const idToken = bearer[1];
-    console.log(idToken);
     const user = await firebaseAdmin.auth().verifyIdToken(idToken);
     req.user = user;
     next();
