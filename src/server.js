@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 4000;
 app.use(logger);
 app.use(express.static("./views"));
 app.use("/assets", express.static("assets"));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json({ limit: "10mb" }));
 
 app.get("/", (req, res) => {
   return res.send("Welcome to TodayKeyword");

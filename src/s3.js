@@ -15,7 +15,6 @@ export const s3 = new S3Client({
 export const uploadS3 = multer({
   storage: multerS3({
     s3: s3,
-    // acl: "public-read",
     bucket: process.env.AWS_BUCKET_NAME,
     metadata: (req, file, callBack) => {
       callBack(null, { fieldname: file.fieldname });

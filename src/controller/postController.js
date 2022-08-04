@@ -17,7 +17,7 @@ export const getPost = async (req, res) => {
         { path: "owner", mode: "User" },
       ],
     })
-    .populate({ path: "owner" });
+    .populate({ path: "owner", model: "User" });
   res.json({ posts });
 };
 
@@ -88,6 +88,7 @@ export const postCreateComment = async (req, res) => {
     await Comment.findByIdAndUpdate(parentComment, {
       $push: { childComments: newComment },
     });
+    4;
   }
   res.status(200).json({ newComment });
 };
