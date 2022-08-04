@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
+    store: { type: String },
+    category: { type: String },
     imageUrls: {
       type: [{ type: String }],
       validate: [imageArrayLimit, "이미지는 최소 1장에서 최대 5장입니다."],
@@ -11,6 +13,7 @@ const postSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    address: { type: String },
     marker: { type: mongoose.Schema.Types.ObjectId, ref: "Marker" },
     review: { type: String, required: true, maxLength: 20 },
     like: { type: Number, default: 0, required: true },
