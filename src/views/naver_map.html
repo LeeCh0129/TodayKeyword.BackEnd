@@ -41,16 +41,14 @@
 
     function setGeolocation(position) {
       // //내 위치로 이동
-      // var location = new naver.maps.LatLng(
-      //   position.latitude,
-      //   position.longitude
-      // );
-      // console.log(location);
-      // map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-      // map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
-      // infowindow.setContent("<span>" + "내 위치 😎" + "</span>");
-      // infowindow.open(map, location);
-      // console.log("Coordinates: " + location.toString());
+      var location = new naver.maps.LatLng(
+        position.latitude,
+        position.longitude
+      );
+      map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
+      map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+      infowindow.setContent("<span>" + "내 위치 😎" + "</span>");
+      infowindow.open(map, location);
     }
 
     function setMarkers(markerList) {
