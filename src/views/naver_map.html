@@ -32,6 +32,7 @@
         position: naver.maps.Position.RIGHT_BOTTOM,
       },
     });
+
     var bounds = map.getBounds(),
       southWest = bounds.getSW(),
       northEast = bounds.getNE(),
@@ -39,16 +40,17 @@
       latSpan = northEast.lat() - southWest.lat();
 
     function setGeolocation(position) {
-      //내 위치로 이동
-      var location = new naver.maps.LatLng(
-        position.latitude,
-        position.longitude
-      );
-      map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-      map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
-      infowindow.setContent("<span>" + "내 위치 😎" + "</span>");
-      infowindow.open(map, location);
-      console.log("Coordinates: " + location.toString());
+      // //내 위치로 이동
+      // var location = new naver.maps.LatLng(
+      //   position.latitude,
+      //   position.longitude
+      // );
+      // console.log(location);
+      // map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
+      // map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+      // infowindow.setContent("<span>" + "내 위치 😎" + "</span>");
+      // infowindow.open(map, location);
+      // console.log("Coordinates: " + location.toString());
     }
 
     function setMarkers(markerList) {
@@ -111,20 +113,6 @@
       if (!marker.getMap()) return;
       marker.setMap(null);
     }
-    // var markerOptions = {
-    //   position: position.destinationPoint(0, 0),
-    //   map: map,
-    //   icon: {
-    // content:
-    //   '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
-    //   'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
-    //   '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
-    // size: new naver.maps.Size(22, 35),
-    // anchor: new naver.maps.Point(11, 35),
-    //   },
-    // };
-
-    // var marker = new naver.maps.Marker(markerOptions); //옵션의 마커 찍기
 
     // 클릭 위치 가져오기
     function initGeocoder() {
