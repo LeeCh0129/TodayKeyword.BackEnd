@@ -12,10 +12,20 @@
       src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=bm5nunvsxk&submodules=geocoder"
     ></script>
   </head>
-  <body>
-    <div id="map" style="width: 100%; height: 500px"></div>
+  <body topmargin="0" leftmargin="0" marginwidth="0" marginheight="0">
+    <div id="map" style="width: 100%; height: 400px"></div>
   </body>
   <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      resize();
+      window.addEventListener("resize", resize);
+    });
+
+    function resize() {
+      var Size = new naver.maps.Size(window.innerWidth, window.innerHeight);
+      map.setSize(Size);
+    }
+
     var infoWindow = new naver.maps.InfoWindow({
       anchorSkew: true,
     });
@@ -144,26 +154,32 @@
           var items = response.v2.results,
             address = "",
             htmlAddresses = [];
-
+          roadAddress = "";
           for (var i = 0, ii = items.length, item, addrType; i < ii; i++) {
             item = items[i];
             address = makeAddress(item) || "";
             addrType =
               item.name === "roadaddr" ? "[도로명 주소]" : "[지번 주소]";
-
-            htmlAddresses.push(i + 1 + ". " + addrType + " " + address);
+            htmlAddresses.push(addrType + " " + address);
           }
 
-          infoWindow.setContent(
-            [
-              '<div style="padding:10px;min-width:150px;line-height:100%;">',
-              '<h4 style="margin-top:5px;">검색 좌표' + latlng + "</h4><br />",
-              htmlAddresses.join("<br />"),
-              "</div>",
-            ].join("\n")
-          );
+          // infoWindow.setContent(
+          //   [
+          //     '<div style="padding:10px;min-width:150px;line-height:100%;">',
+          //     '<h4 style="margin-top:5px;">검색 좌표' + latlng + "</h4><br />",
+          //     htmlAddresses.join("<br />"),
+          //     "</div>",
+          //   ].join("\n")
+          // );
 
-          infoWindow.open(map, latlng);
+          // infoWindow.open(map, latlng);
+          sendToApp.postMessage(
+            JSON.stringify({
+              latitude: latlng._lat,
+              longitude: latlng._lng,
+              roadAddress: htmlAddresses[0],
+            })
+          );
         }
       );
     }

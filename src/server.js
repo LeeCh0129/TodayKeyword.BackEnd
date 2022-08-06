@@ -10,6 +10,7 @@ const logger = morgan("dev");
 const PORT = process.env.PORT || 4000;
 
 app.use(logger);
+app.use("/assets", express.static("assets"));
 app.use(express.static("./views"));
 app.use(express.urlencoded({ limit: "20mb", extended: true }));
 app.use(express.json({ limit: "20mb" }));
