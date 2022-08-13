@@ -62,27 +62,27 @@
     }
 
     function setMarkers(markerList) {
-      for (var key in markerList) {
+      for (var index in markerList) {
         var position = new naver.maps.LatLng(
-          markerList[key][0],
-          markerList[key][1]
+          markerList[index]["position"]["lat"],
+          markerList[index]["position"]["lng"]
         );
         var marker = new naver.maps.Marker({
           map: map,
           position: position,
-          title: key,
+          title: markerList[index]["store"],
           icon: {
             content:
               '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
               'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
               '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
-            size: new naver.maps.Size(22, 35),
-            anchor: new naver.maps.Point(11, 35),
+            size: new naver.maps.Size(35, 35),
+            anchor: new naver.maps.Point(35, 35),
           },
           zIndex: 100,
         });
         var infoWindow = new naver.maps.InfoWindow({
-          content: "<div>" + key + "</div>",
+          content: "<div>" + markerList[index]["store"] + "</div>",
         });
         markers.push(marker);
         infoWindows.push(infoWindow);
