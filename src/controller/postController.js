@@ -58,8 +58,8 @@ export const postEditComment = async (req, res) => {
 
 export const getComments = async (req, res) => {
   const { postId } = req.params;
-  console.log(await Comment.find({ post: postId, parentComment: null }));
   const comments = await Comment.find({ post: postId, parentComment: null })
+    .sort({ createdAt: -1 })
     .populate([
       {
         path: "childComments",
@@ -84,11 +84,5 @@ export const postCreateComment = async (req, res) => {
     parentComment,
     comment,
   });
-  if (parentComment) {
-    await Comment.findByIdAndUpdate(parentComment, {
-      $push: { childComments: newComment },
-    });
-    4;
-  }
   res.status(200).json({ newComment });
 };
