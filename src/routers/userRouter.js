@@ -2,9 +2,9 @@ import express from "express";
 import { ensureAuthorized } from "../middlewares.js";
 import { signIn, getProfile } from "../controller/userController.js";
 
-const apiRouter = express.Router();
+const router = express.Router();
 
-apiRouter.post("/signIn", signIn);
-apiRouter.get("/profile/:userId([0-9a-f]{24})", ensureAuthorized, getProfile);
+router.post("/signIn", signIn);
+router.get("/profile/:userId([0-9a-f]{24})", ensureAuthorized, getProfile);
 
-export default apiRouter;
+export default router;
