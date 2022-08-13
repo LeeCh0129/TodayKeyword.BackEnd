@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
-    store: { type: String },
+    store: { type: String, unique: true },
     category: { type: String },
     imageUrls: {
       type: [{ type: String }],
