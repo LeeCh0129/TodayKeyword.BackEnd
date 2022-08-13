@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import userRouter from "./routers/userRouter.js";
 import postRouter from "./routers/postRouter.js";
+import markerRouter from "./routers/markerRouter.js";
 import "dotenv/config";
 
 const app = express();
@@ -16,7 +17,7 @@ app.use(express.urlencoded({ limit: "20mb", extended: true }));
 app.use(express.json({ limit: "20mb" }));
 
 app.get("/", (req, res) => {
-  return res.send("Welcome to TodayKeyword");
+  return res.send("<h1>Welcome to TodayKeyword</h1>");
 });
 
 app.get("/map", (req, res) => {
@@ -25,6 +26,7 @@ app.get("/map", (req, res) => {
 
 app.use("/user", userRouter);
 app.use("/post", postRouter);
+app.use("/marker", markerRouter);
 app.listen(PORT, function () {
   console.log(`✅ 서버 열림 port:${PORT}`);
 });
