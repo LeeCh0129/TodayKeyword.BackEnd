@@ -31,6 +31,7 @@
     });
 
     var markers = [],
+      markersInfo = [],
       infoWindows = [];
 
     var map = new naver.maps.Map("map", {
@@ -62,6 +63,7 @@
     }
 
     function setMarkers(markerList) {
+      markers = [];
       for (var index in markerList) {
         var position = new naver.maps.LatLng(
           markerList[index]["position"]["lat"],
@@ -81,11 +83,8 @@
           },
           zIndex: 100,
         });
-        var infoWindow = new naver.maps.InfoWindow({
-          content: "<div>" + markerList[index]["store"] + "</div>",
-        });
         markers.push(marker);
-        infoWindows.push(infoWindow);
+        markersInfo = markerList;
       }
       for (var i = 0, ii = markers.length; i < ii; i++) {
         naver.maps.Event.addListener(markers[i], "click", getClickHandler(i));
@@ -262,17 +261,14 @@
       return !!(addition && addition.value);
     }
 
-    function getClickHandler(seq) {
+    function getClickHandler(index) {
       return function (e) {
-        var marker = markers[seq],
-          infoWindow = infoWindows[seq];
-        if (infoWindow.getMap()) {
-          infoWindow.close();
-        } else {
-          infoWindow.open(map, marker);
-          map.setCenter(marker.position);
-          map.setZoom(15);
-        }
+        var marker = markers[index],
+          markerInfo = markersInfo[index];
+        console.log(JSON.stringify(markersInfo[index]));
+        map.setCenter(marker.position);
+        map.setZoom(17);
+        markerCallBack.postMessage(JSON.stringify({ markerInfo }));
       };
     }
 

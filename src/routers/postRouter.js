@@ -25,6 +25,7 @@ router.post(
 
 router
   .route("/:postId([0-9a-f]{24})/comment/:commentId([0-9a-f]{24})")
+  .all(ensureAuthorized)
   .delete(deleteComment)
   .post(postEditComment); //댓글 삭제 및 수정
 
