@@ -8,14 +8,7 @@ export const getPost = async (req, res) => {
     .populate({
       path: "comments",
       model: "Comment",
-      populate: [
-        {
-          path: "childComments",
-          model: "Comment",
-          populate: { path: "owner", model: "User" },
-        },
-        { path: "owner", mode: "User" },
-      ],
+      populate: { path: "owner", mode: "User" },
     })
     .populate({ path: "owner", model: "User" });
   res.json({ posts });
@@ -57,32 +50,40 @@ export const postEditComment = async (req, res) => {
 };
 
 export const getComments = async (req, res) => {
-  const { postId } = req.params;
-  const comments = await Comment.find({ post: postId, parentComment: null })
-    .sort({ createdAt: -1 })
-    .populate([
-      {
-        path: "childComments",
-        model: "Comment",
-        populate: { path: "owner", model: "User" },
-      },
-      { path: "owner", mode: "User" },
-    ])
-    .populate({ path: "owner" });
-  res.json(comments);
+  try {
+    const { postId } = req.params;
+    const comments = await Comment.find({ post: postId, parentComment: null })
+      .sort({ createdAt: -1 })
+      .populate([
+        {
+          path: "childComments",
+          model: "Comment",
+          populate: { path: "owner", model: "User" },
+        },
+        { path: "owner", mode: "User" },
+      ])
+      .populate({ path: "owner" });
+    res.json(comments);
+  } catch (e) {
+    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
 };
 
 export const postCreateComment = async (req, res) => {
-  const user = await User.findOne({ firebaseId: req.user.uid });
-  const { postId } = req.params;
-  //parentComment가 null이면 null을 넣고 생성
-  //parentComment가 ObjectId면 부모 객체를 찾아서 children에 추가
-  const { parentComment, comment } = req.body;
-  const newComment = await Comment.create({
-    owner: user._id,
-    post: postId,
-    parentComment,
-    comment,
-  });
-  res.status(200).json({ newComment });
+  try {
+    const user = await User.findOne({ firebaseId: req.user.uid });
+    const { postId } = req.params;
+    //parentComment가 null이면 null을 넣고 생성
+    //parentComment가 ObjectId면 부모 객체를 찾아서 children에 추가
+    const { parentComment, comment } = req.body;
+    const newComment = await Comment.create({
+      owner: user._id,
+      post: postId,
+      parentComment,
+      comment,
+    });
+    res.status(200).json({ newComment });
+  } catch (e) {
+    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
 };
