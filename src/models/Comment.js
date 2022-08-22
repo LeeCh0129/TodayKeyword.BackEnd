@@ -13,15 +13,24 @@ const commentSchema = new mongoose.Schema(
       ref: "Comment",
       default: null,
     },
-    childComments: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-    },
     comment: { type: String, maxLength: 20, required: true },
     like: { type: Number, default: 0, required: true },
     isDeleted: { type: Boolean, default: false, required: true },
   },
-  { timestamps: true }
+  {
+    versionKey: false,
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
 );
+
+commentSchema.virtual("childComments", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "parentComment",
+  match: { parentComment: null },
+});
 
 const Comment = mongoose.model("Comment", commentSchema);
 

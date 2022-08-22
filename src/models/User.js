@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String },
     state: { type: String, default: "active" },
     name: { type: String },
+    nickName: { type: String },
     likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   },
