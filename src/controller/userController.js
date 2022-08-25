@@ -13,8 +13,6 @@ export const signIn = async (req, res) => {
       email,
       firebaseId: uid,
     });
-  } else {
-    return res.status(401).json({ errorMessage: "회원가입을 진행해주세요." }); //회원정보가 없으면 에러 반환
   }
   const customToken = response.data;
   if (!customToken) {
