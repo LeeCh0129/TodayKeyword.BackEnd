@@ -7,23 +7,19 @@ export const signIn = async (req, res) => {
   // const { service, email, uid, signUp: { name, nickName }} = req.body; //요청에서 회원가입에 필요한 데이터를 변수로 저장
   const { service, email, uid } = req.body; //요청에서 회원가입에 필요한 데이터를 변수로 저장
   if (!exists) {
-    if (name && nickName) {
-      await User.create({
-        //DB에 유저 생성
-        service,
-        email,
-        firebaseId: uid,
-        name,
-        nickName,
-      }).error((error) =>
-        res.status(400).json({
-          errorMessage:
-            "회원가입에 실패했습니다. 데이터를 확인 후 다시 요청해주세요.",
-        })
-      ); //회원가입 진행
-    } else {
-      return res.status(401).json({ errorMessage: "회원가입을 진행해주세요." }); //회원정보가 없으면 에러 반환
-    }
+    await User.create({
+      //DB에 유저 생성
+      service,
+      email,
+      firebaseId: uid,
+    }).error((error) =>
+      res.status(400).json({
+        errorMessage:
+          "회원가입에 실패했습니다. 데이터를 확인 후 다시 요청해주세요.",
+      })
+    ); //회원가입 진행
+  } else {
+    return res.status(401).json({ errorMessage: "회원가입을 진행해주세요." }); //회원정보가 없으면 에러 반환
   }
   const customToken = response.data;
   if (!customToken) {
