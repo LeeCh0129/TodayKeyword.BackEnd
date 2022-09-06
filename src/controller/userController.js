@@ -1,6 +1,20 @@
 import axios from "axios";
 import User from "../models/User.js";
 
+const usersProjection = {
+  service: 0,
+  createdAt: 0,
+  updatedAt: 0,
+  firebaseId: 0,
+  email: 0,
+  avatar: 1,
+  state: 0,
+  name: 1,
+  nickName: 1,
+  likedPosts: 0,
+  bookmarkPosts: 0,
+};
+
 export const signIn = async (req, res) => {
   const { service, email, uid } = req.body; //요청에서 회원가입에 필요한 데이터를 변수로 저장
   const response = await postFirebaseFunction(req.body); //인증서버 로그인 또는 회원가입 후 토큰 반환
@@ -24,8 +38,18 @@ export const signIn = async (req, res) => {
 };
 
 export const getProfile = async (req, res) => {
-  const user = await User.findOne({ firebaseId: req.user.uid });
+  const user = await User.findOne(
+    { firebaseId: req.user.uid },
+    usersProjection
+  );
   res.status(200).json(user);
+};
+
+export const getBookmark = async (req, res) => {
+  const bookmark = await User.findOne({ firebaseId: req.user.uid }).select(
+    "bookmarkPosts"
+  );
+  res.status(200).json(bookmark);
 };
 
 const postFirebaseFunction = (user) =>

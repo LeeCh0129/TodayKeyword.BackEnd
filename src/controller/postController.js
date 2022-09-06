@@ -3,6 +3,24 @@ import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 
 export const getPost = async (req, res) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId)
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: { path: "owner", model: "User" },
+    })
+    .populate({ path: "owner", model: "User" })
+    .populate({
+      path: "like",
+      model: "User",
+    })
+    .populate({ path: "marker", model: "Marker" });
+  return post;
+};
+
+export const getPosts = async (req, res) => {
+  console.log(req.user);
   const posts = await Post.find({})
     .sort({ createdAt: -1 })
     .populate({
@@ -10,25 +28,42 @@ export const getPost = async (req, res) => {
       model: "Comment",
       populate: { path: "owner", mode: "User" },
     })
-    .populate({ path: "owner", model: "User" });
+    .populate({ path: "owner", model: "User" })
+    .populate({ path: "marker", model: "Marker" });
   res.json({ posts });
 };
 
 export const postCreatePost = async (req, res) => {
   let imageUrls = [];
   const user = await User.findOne({ firebaseId: req.user.uid });
-  console.log(user._id);
   req.files.forEach((file) => imageUrls.push(file.key));
-  const { store, category, address, review, keyword } = req.body;
+  const { marker, review, keyword, rating } = req.body;
+  console.log(req.body);
   const post = await Post.create({
-    store,
     owner: user._id,
-    category,
     imageUrls,
-    address,
+    marker,
     review,
     keyword,
+    rating,
   });
+  res.json({ status: "success", post });
+};
+
+export const patchLike = async (req, res) => {
+  const userId = req.params.uid;
+  const { postId } = req.params;
+  let post = await Post.findById(postId);
+  if (post.like.includes(userId)) {
+    const filteredLike = post.like.filter(function (value, index, arr) {
+      return value !== userId;
+    });
+    post.like = filteredLike;
+    post.save();
+  } else {
+    post.like.push(userId);
+    post.save();
+  }
   res.json({ status: "success", post });
 };
 

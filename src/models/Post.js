@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
-    store: { type: String, unique: true },
     category: { type: String },
     imageUrls: {
       type: [{ type: String }],
@@ -13,15 +12,15 @@ const postSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
-    address: { type: String },
     marker: { type: mongoose.Schema.Types.ObjectId, ref: "Marker" },
-    review: { type: String, required: true, maxLength: 20 },
-    like: { type: Number, default: 0, required: true },
+    review: { type: String, required: true, maxLength: 30 },
+    like: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     state: { type: String, default: "active", required: true },
     keyword: {
       type: [String],
       validate: [keywordArrayLimit, "키워드는 최소 1개에서 최대 3개입니다."],
     },
+    rating: { type: Number, required: true },
   },
   {
     versionKey: false,

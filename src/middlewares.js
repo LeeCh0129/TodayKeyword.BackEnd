@@ -2,6 +2,7 @@ import firebaseAdmin from "./firebase.js";
 
 export const ensureAuthorized = async (req, res, next) => {
   try {
+    console.log(req.body);
     const bearer = req.headers["authorization"].split(" ");
     const idToken = bearer[1];
     const user = await firebaseAdmin.auth().verifyIdToken(idToken);

@@ -5,7 +5,7 @@ const markerSchema = new mongoose.Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
-  store: { type: String, required: true, unique: true },
+  store: { type: String, required: true },
   address: { type: String, required: true },
   category: { type: String, required: true },
   state: { type: String, required: true, default: "active" },
