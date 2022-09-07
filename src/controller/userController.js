@@ -49,7 +49,29 @@ export const getBookmark = async (req, res) => {
   const bookmark = await User.findOne({ firebaseId: req.user.uid }).select(
     "bookmarkPosts"
   );
+  if (!bookmark) {
+    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
   res.status(200).json(bookmark);
+};
+
+export const patchBookmark = async (req, res) => {
+  const { postId } = req.params;
+  const user = await User.findOne({ firebaseId: req.user.uid });
+  if (user.bookmarkPosts.includes(postId)) {
+    const filteredBookmarkPosts = user.bookmarkPosts.filter(function (
+      value,
+      index,
+      arr
+    ) {
+      return value !== postId;
+    });
+    user.bookmarkPosts = filteredBookmarkPosts;
+    user.save();
+  } else {
+    user.bookmarkPosts.push(postId);
+    user.save();
+  }
 };
 
 const postFirebaseFunction = (user) =>

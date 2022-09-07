@@ -38,7 +38,6 @@ export const postCreatePost = async (req, res) => {
   const user = await User.findOne({ firebaseId: req.user.uid });
   req.files.forEach((file) => imageUrls.push(file.key));
   const { marker, review, keyword, rating } = req.body;
-  console.log(req.body);
   const post = await Post.create({
     owner: user._id,
     imageUrls,
