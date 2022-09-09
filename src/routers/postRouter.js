@@ -4,6 +4,7 @@ import { ensureAuthorized } from "../middlewares.js";
 import {
   getPosts,
   postCreatePost,
+  deletePost,
   deleteComment,
   postEditComment,
   getComments,
@@ -22,8 +23,9 @@ router.post(
   postCreatePost
 );
 
+router.route("/:postId([0-9a-f]{24})").delete(deletePost);
 // router.route("/:id").get(getPost);
-router.patch("/:postId([0-9a-f]{24})/like", patchLike);
+router.patch("/:postId([0-9a-f]{24})/like", ensureAuthorized, patchLike); //게시글 좋아요
 
 router
   .route("/:postId([0-9a-f]{24})/comment/:commentId([0-9a-f]{24})")

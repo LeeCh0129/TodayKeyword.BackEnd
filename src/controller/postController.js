@@ -20,7 +20,6 @@ export const getPost = async (req, res) => {
 };
 
 export const getPosts = async (req, res) => {
-  console.log(req.user);
   const posts = await Post.find({})
     .sort({ createdAt: -1 })
     .populate({
@@ -50,24 +49,36 @@ export const postCreatePost = async (req, res) => {
 };
 
 export const patchLike = async (req, res) => {
-  const userId = req.params.uid;
+  const user = await User.findOne({ firebaseId: req.user.uid });
   const { postId } = req.params;
   let post = await Post.findById(postId);
-  if (post.like.includes(userId)) {
+  if (post.like.includes(user.id)) {
     const filteredLike = post.like.filter(function (value, index, arr) {
-      return value !== userId;
+      return value != user.id;
     });
+    console.log("unlike");
+
     post.like = filteredLike;
     post.save();
   } else {
-    post.like.push(userId);
+    console.log("like");
+    post.like.push(user.id);
     post.save();
   }
   res.json({ status: "success", post });
 };
 
+export const deletePost = async (req, res) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId);
+};
+
 export const deleteComment = async (req, res) => {
   const { commentId } = req.params;
+  const user = await User.findOne({ firebaseId: req.user.uid }).select("_id");
+
+  // userId 찾아서 comment 작성자가 동일한지 체크
+
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     isDeleted: true,
   });
