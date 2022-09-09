@@ -1,5 +1,6 @@
 import axios from "axios";
 import User from "../models/User.js";
+import admin from "firebase-admin";
 
 const usersProjection = {
   service: 0,
@@ -16,25 +17,65 @@ const usersProjection = {
 };
 
 export const signIn = async (req, res) => {
+  const userId = await User.findOne({ firebaseId: req.body.uid }).select("_id"); //DB에서 유저 확인
+  if (!userId) {
+    return res.status(204).json({ errorMessage: "회원가입을 진행해주세요." });
+  }
+  const customToken = await createCustomToken(req, userId._id); //토큰 발급
   const { service, email, uid } = req.body; //요청에서 회원가입에 필요한 데이터를 변수로 저장
-  const response = await postFirebaseFunction(req.body); //인증서버 로그인 또는 회원가입 후 토큰 반환
-  const exists = await User.exists({ firebaseId: uid }); //DB에서 유저 확인
   // const { service, email, uid, signUp: { name, nickName }} = req.body; //요청에서 회원가입에 필요한 데이터를 변수로 저장
-  if (!exists) {
-    await User.create({
-      //DB에 유저 생성
-      service,
-      email,
-      firebaseId: uid,
-    });
-  }
-  const customToken = response.data;
-  if (!customToken) {
-    return res
-      .status(400)
-      .json({ errorMessage: "데이터가 올바르지 않습니다." });
-  }
+  // if (!exists) {
+  //   await User.create({
+  //     //DB에 유저 생성
+  //     service,
+  //     email,
+  //     firebaseId: uid,
+  //   });
+  // }
+  // const customToken = response.data;
+  // if (!customToken) {
+  //   return res
+  //     .status(400)
+  //     .json({ errorMessage: "데이터가 올바르지 않습니다." });
+  // }
   return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
+};
+
+export const signUp = async (req, res) => {
+  console.log(req.body);
+  const user = req.body;
+  const newUser = await User.create({
+    service: user.service,
+    email: user.email,
+    firebaseId: user.uid,
+    name: user.name,
+    nickName: user.nickName,
+    univ: user.univ,
+  });
+  const customToken = await createCustomToken(req, newUser);
+  res.status(201).json(customToken);
+};
+
+export const createCustomToken = async (req, userId) => {
+  const user = req.body;
+  const params = {
+    email: user.email,
+    service: user.service,
+  };
+
+  try {
+    await admin.auth().updateUser(user.uid, params);
+  } catch (e) {
+    params["uid"] = user.uid;
+    await admin.auth().createUser(params);
+  }
+
+  await admin.auth().setCustomUserClaims(user.uid, {
+    userId: userId,
+  });
+
+  const customToken = await admin.auth().createCustomToken(user.uid);
+  return customToken;
 };
 
 export const getProfile = async (req, res) => {

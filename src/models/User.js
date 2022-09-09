@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     nickName: { type: String },
     likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    univ: { type: String },
   },
   { timestamps: true }
 );
