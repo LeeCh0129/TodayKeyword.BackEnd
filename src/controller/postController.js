@@ -56,16 +56,13 @@ export const patchLike = async (req, res) => {
     const filteredLike = post.like.filter(function (value, index, arr) {
       return value != user.id;
     });
-    console.log("unlike");
-
     post.like = filteredLike;
     post.save();
   } else {
-    console.log("like");
     post.like.push(user.id);
     post.save();
   }
-  res.json({ status: "success", post });
+  res.json({ status: "success", like: post.like });
 };
 
 export const deletePost = async (req, res) => {
