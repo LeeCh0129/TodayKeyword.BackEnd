@@ -32,7 +32,6 @@ export const signIn = async (req, res) => {
 };
 
 export const signUp = async (req, res) => {
-  console.log(req.body);
   const user = req.body;
   const newUser = await User.create({
     service: user.service,
@@ -42,7 +41,7 @@ export const signUp = async (req, res) => {
     nickName: user.nickName,
     univ: user.univ,
   });
-  const customToken = await createCustomToken(req, newUser);
+  const customToken = await createCustomToken(req, newUser._id);
   res.status(201).json(customToken);
 };
 
