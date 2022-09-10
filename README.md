@@ -1,5 +1,6 @@
 # Today Keyword
 
+/user/:userId -> 유저 정보 불러오기
 /user/signIn -> 로그인 및 회원가입
 /user/profile/:userId -> 프로필 조회 및 수정 및 삭제
 /user/bookmark -> 북마크 조회
