@@ -4,7 +4,7 @@
 /user/signIn -> 로그인 및 회원가입
 /user/profile/:userId -> 프로필 조회 및 수정 및 삭제
 /user/bookmark -> 북마크 조회
-/user/bookmark/add/:bookmarkId -> 북마크 추가
+/user/bookmark/:postId -> 북마크 추가 및 제거
 
 /post -> 게시글 최신순 조회
 /post/create -> 게시글 생성

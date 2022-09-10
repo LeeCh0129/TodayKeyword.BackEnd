@@ -88,14 +88,14 @@ export const getBookmark = async (req, res) => {
 
 export const patchBookmark = async (req, res) => {
   const { postId } = req.params;
-  const user = await User.findOne({ firebaseId: req.user.uid });
+  const user = await User.findById(req.user.userId).select("bookmarkPosts");
   if (user.bookmarkPosts.includes(postId)) {
     const filteredBookmarkPosts = user.bookmarkPosts.filter(function (
       value,
       index,
       arr
     ) {
-      return value !== postId;
+      return value != postId;
     });
     user.bookmarkPosts = filteredBookmarkPosts;
     user.save();
@@ -103,6 +103,7 @@ export const patchBookmark = async (req, res) => {
     user.bookmarkPosts.push(postId);
     user.save();
   }
+  res.status(200).json(user);
 };
 
 const postFirebaseFunction = (user) =>

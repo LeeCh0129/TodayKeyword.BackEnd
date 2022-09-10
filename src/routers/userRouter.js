@@ -15,7 +15,11 @@ router.get("/:userId([0-9a-f]{24})", ensureAuthorized, getUser);
 router.post("/signin", signIn);
 router.post("/signup", signUp);
 router.get("/bookmark", ensureAuthorized, getBookmark);
-router.patch("/bookmark/:postId([0-9a-f]{24})", patchBookmark);
+router.patch(
+  "/bookmark/:postId([0-9a-f]{24})",
+  ensureAuthorized,
+  patchBookmark
+);
 router.get("/user/bookmark/add/:bookmarkId", ensureAuthorized);
 router.get("/profile/:userId([0-9a-f]{24})", ensureAuthorized, getProfile);
 
