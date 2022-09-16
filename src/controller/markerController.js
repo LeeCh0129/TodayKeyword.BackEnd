@@ -13,6 +13,5 @@ export const getPostsFromMarker = async (req, res) => {
 };
 
 export const postCreateMarker = (req, res) => {
-  console.log(req.body);
   res.json({});
 };

@@ -3,6 +3,23 @@ import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 
 export const getPost = async (req, res) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId)
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: { path: "owner", model: "User" },
+    })
+    .populate({ path: "owner", model: "User" })
+    .populate({
+      path: "like",
+      model: "User",
+    })
+    .populate({ path: "marker", model: "Marker" });
+  return post;
+};
+
+export const getPosts = async (req, res) => {
   const posts = await Post.find({})
     .sort({ createdAt: -1 })
     .populate({
@@ -10,30 +27,55 @@ export const getPost = async (req, res) => {
       model: "Comment",
       populate: { path: "owner", mode: "User" },
     })
-    .populate({ path: "owner", model: "User" });
+    .populate({ path: "owner", model: "User" })
+    .populate({ path: "marker", model: "Marker" });
   res.json({ posts });
 };
 
 export const postCreatePost = async (req, res) => {
   let imageUrls = [];
   const user = await User.findOne({ firebaseId: req.user.uid });
-  console.log(user._id);
   req.files.forEach((file) => imageUrls.push(file.key));
-  const { store, category, address, review, keyword } = req.body;
+  const { marker, review, keyword, rating } = req.body;
   const post = await Post.create({
-    store,
     owner: user._id,
-    category,
     imageUrls,
-    address,
+    marker,
     review,
     keyword,
+    rating,
   });
   res.json({ status: "success", post });
 };
 
+export const patchLike = async (req, res) => {
+  const user = await User.findOne({ firebaseId: req.user.uid });
+  const { postId } = req.params;
+  let post = await Post.findById(postId);
+  if (post.like.includes(user.id)) {
+    const filteredLike = post.like.filter(function (value, index, arr) {
+      return value != user.id;
+    });
+    post.like = filteredLike;
+    post.save();
+  } else {
+    post.like.push(user.id);
+    post.save();
+  }
+  res.json({ status: "success", like: post.like });
+};
+
+export const deletePost = async (req, res) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId);
+};
+
 export const deleteComment = async (req, res) => {
   const { commentId } = req.params;
+  const user = await User.findOne({ firebaseId: req.user.uid }).select("_id");
+
+  // userId 찾아서 comment 작성자가 동일한지 체크
+
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     isDeleted: true,
   });

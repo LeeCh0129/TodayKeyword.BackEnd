@@ -9,8 +9,8 @@ const userSchema = new mongoose.Schema(
     state: { type: String, default: "active" },
     name: { type: String },
     nickName: { type: String },
-    likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    univ: { type: String },
   },
   { timestamps: true }
 );
