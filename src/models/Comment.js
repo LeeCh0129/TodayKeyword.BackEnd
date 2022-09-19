@@ -14,10 +14,8 @@ const commentSchema = new mongoose.Schema(
       default: null,
     },
     comment: { type: String, maxLength: 20, required: true },
-    like: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-      default: undefined,
-    },
+    like: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  
     isDeleted: { type: Boolean, default: false, required: true },
   },
   {
