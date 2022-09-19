@@ -21,8 +21,8 @@ export const getPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   const posts = await Post.find({})
-    .sort({ createdAt: -1 })
-    .populate({
+    .sort({ createdAt: -1 }) // sort() 메서드는 배열의 요소를 적절한 위치에 정렬한 후  그 배열을 반환(배열 안의 원소를 정렬하는 함수)
+    .populate({ // populate는 무서의 경로를 다른 컬렉션의 실제 문서로 자동으로 바꾸는 방법, 
       path: "comments",
       model: "Comment",
       populate: { path: "owner", mode: "User" },
@@ -62,7 +62,7 @@ export const patchLike = async (req, res) => {
     post.like.push(user.id);
     post.save();
   }
-  res.json({ status: "success", like: post.like });
+  res.status(200).json({ status: "success", like: post.like });
 };
 
 export const deletePost = async (req, res) => {
@@ -129,3 +129,24 @@ export const postCreateComment = async (req, res) => {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };
+
+export const patchCommentLike = async (req, res) => {
+  // const user = await User.findOne({ firebaseId: req.user.uid });
+  const user = { id : "63284c60213a12a55efb50d7"};
+  const test = await User.findById('63284c60213a12a55efb50d7');
+  const comment = await Comment.findById(req.params.commentId, );
+  if(!comment){
+    res.status(400).json({ status: "error", errorMessage: "올바르지 않은 요청입니다." });
+  }
+  else if(comment.like.includes(user.id)){
+    const filteredLike = comment.like.filter(function (value, index, arr) {
+      return value != user.id;
+    });
+    comment.like = filteredLike;
+    comment.save();
+  } else {
+    comment.like.push(user.id);
+    comment.save();
+  }
+  res.status(200).json({ status: "success", like: comment.like });
+}
