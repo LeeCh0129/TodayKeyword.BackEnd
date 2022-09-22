@@ -20,7 +20,7 @@ export const getPost = async (req, res) => {
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find({})
+  const posts = await Post.find({ state: "active" })
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
@@ -67,7 +67,14 @@ export const patchLike = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId);
+  const post = await Post.findById(postId).select("state");
+  if (post.state == "deleted")
+    res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
+  if (post.state == "active") {
+    post.state = "deleted";
+  }
+  post.save();
+  res.status(200).json(post);
 };
 
 export const deleteComment = async (req, res) => {
@@ -79,7 +86,7 @@ export const deleteComment = async (req, res) => {
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     isDeleted: true,
   });
-  res.json(newComment);
+  res.status(200).json(newComment);
 };
 
 export const postEditComment = async (req, res) => {
@@ -88,7 +95,7 @@ export const postEditComment = async (req, res) => {
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     comment,
   });
-  res.json(newComment);
+  res.status(200).json(newComment);
 };
 
 export const getComments = async (req, res) => {
@@ -105,7 +112,7 @@ export const getComments = async (req, res) => {
         { path: "owner", mode: "User" },
       ])
       .populate({ path: "owner" });
-    res.json(comments);
+    res.status(200).json(comments);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
@@ -124,7 +131,7 @@ export const postCreateComment = async (req, res) => {
       parentComment,
       comment,
     });
-    res.status(200).json({ newComment });
+    res.status(200).json(newComment);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
