@@ -104,11 +104,3 @@ export const patchBookmark = async (req, res) => {
   }
   res.status(200).json(user);
 };
-
-const postFirebaseFunction = (user) =>
-  axios
-    .post(
-      "https://us-central1-todaykeyword.cloudfunctions.net/createCustomToken",
-      user
-    )
-    .catch((error) => console.log(error));

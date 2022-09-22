@@ -16,13 +16,13 @@ export const getPost = async (req, res) => {
       model: "User",
     })
     .populate({ path: "marker", model: "Marker" });
-  return post;
+  res.status(200).json(post);
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find({})
-    .sort({ createdAt: -1 }) // sort() 메서드는 배열의 요소를 적절한 위치에 정렬한 후  그 배열을 반환(배열 안의 원소를 정렬하는 함수)
-    .populate({ // populate는 무서의 경로를 다른 컬렉션의 실제 문서로 자동으로 바꾸는 방법, 
+  const posts = await Post.find({ state: "active" })
+    .sort({ createdAt: -1 })
+    .populate({
       path: "comments",
       model: "Comment",
       populate: { path: "owner", mode: "User" },
@@ -62,12 +62,19 @@ export const patchLike = async (req, res) => {
     post.like.push(user.id);
     post.save();
   }
-  res.status(200).json({ status: "success", like: post.like });
+  res.json({ status: "success", like: post.like });
 };
 
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId);
+  const post = await Post.findById(postId).select("state");
+  if (post.state == "deleted")
+    res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
+  if (post.state == "active") {
+    post.state = "deleted";
+  }
+  post.save();
+  res.status(200).json(post);
 };
 
 export const deleteComment = async (req, res) => {
@@ -79,7 +86,7 @@ export const deleteComment = async (req, res) => {
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     isDeleted: true,
   });
-  res.json(newComment);
+  res.status(200).json(newComment);
 };
 
 export const postEditComment = async (req, res) => {
@@ -88,7 +95,7 @@ export const postEditComment = async (req, res) => {
   const newComment = await Comment.findByIdAndUpdate(commentId, {
     comment,
   });
-  res.json(newComment);
+  res.status(200).json(newComment);
 };
 
 export const getComments = async (req, res) => {
@@ -105,7 +112,7 @@ export const getComments = async (req, res) => {
         { path: "owner", mode: "User" },
       ])
       .populate({ path: "owner" });
-    res.json(comments);
+    res.status(200).json(comments);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
@@ -124,7 +131,7 @@ export const postCreateComment = async (req, res) => {
       parentComment,
       comment,
     });
-    res.status(200).json({ newComment });
+    res.status(200).json(newComment);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
@@ -147,5 +154,4 @@ export const patchCommentLike = async (req, res) => {
     comment.like.push(user.id);
     comment.save();
   }
-  res.status(200).json({ status: "success", like: comment.like });
-}
+};
