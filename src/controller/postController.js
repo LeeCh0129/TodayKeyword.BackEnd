@@ -131,14 +131,13 @@ export const postCreateComment = async (req, res) => {
 };
 
 export const patchCommentLike = async (req, res) => {
-  // const user = await User.findOne({ firebaseId: req.user.uid });
-  const user = { id : "63284c60213a12a55efb50d7"};
-  const test = await User.findById('63284c60213a12a55efb50d7');
-  const comment = await Comment.findById(req.params.commentId, );
-  if(!comment){
-    res.status(400).json({ status: "error", errorMessage: "올바르지 않은 요청입니다." });
-  }
-  else if(comment.like.includes(user.id)){
+  const user = await User.findOne({ firebaseId: req.user.uid });
+  const comment = await Comment.findById(req.params.commentId);
+  if (!comment) {
+    res
+      .status(400)
+      .json({ status: "error", errorMessage: "올바르지 않은 요청입니다." });
+  } else if (comment.like.includes(user.id)) {
     const filteredLike = comment.like.filter(function (value, index, arr) {
       return value != user.id;
     });
