@@ -29,7 +29,7 @@ export const getPosts = async (req, res) => {
     })
     .populate({ path: "owner", model: "User" })
     .populate({ path: "marker", model: "Marker" });
-  res.json({ posts });
+  res.status(200).json({ posts });
 };
 
 export const postCreatePost = async (req, res) => {
@@ -67,14 +67,19 @@ export const patchLike = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId).select("state");
-  if (post.state == "deleted")
-    res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
-  if (post.state == "active") {
-    post.state = "deleted";
+  const post = await Post.findById(postId).select("state owner");
+  console.log(req.user.userId);
+  console.log(post.owner);
+  if (req.user.userId != post.owner) {
+    return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
   }
-  post.save();
-  res.status(200).json(post);
+  // if (post.state == "deleted")
+  //   res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
+  // if (post.state == "active") {
+  //   post.state = "deleted";
+  // }
+  // post.save();
+  return res.status(200).json(post);
 };
 
 export const deleteComment = async (req, res) => {
