@@ -1,6 +1,7 @@
 import axios from "axios";
 import User from "../models/User.js";
 import admin from "firebase-admin";
+import Post from "../models/Post.js";
 
 const usersProjection = {
   service: 0,
@@ -68,11 +69,28 @@ export const createCustomToken = async (req, userId) => {
 };
 
 export const getProfile = async (req, res) => {
-  const user = await User.findOne(
-    { firebaseId: req.user.uid },
-    usersProjection
-  );
-  res.status(200).json(user);
+  const posts = await Post.find({ owner: req.user.userId })
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: { path: "owner", model: "User" },
+    })
+    .populate({ path: "owner", model: "User" })
+    .populate({
+      path: "like",
+      model: "User",
+    })
+    .populate({ path: "marker", model: "Marker" });
+
+  if (!posts) {
+    res.status(400).json({ errorMessage: "절못된 요청입니다." });
+  }
+  res.status(200).json({ posts });
+  // const user = await User.findOne(
+  //   { firebaseId: req.user.uid },
+  //   usersProjection
+  // );
+  // res.status(200).json(user);
 };
 
 export const getBookmark = async (req, res) => {
