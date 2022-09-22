@@ -16,7 +16,7 @@ export const getPost = async (req, res) => {
       model: "User",
     })
     .populate({ path: "marker", model: "Marker" });
-  return post;
+  res.status(200).json(post);
 };
 
 export const getPosts = async (req, res) => {
