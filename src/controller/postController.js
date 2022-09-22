@@ -136,3 +136,22 @@ export const postCreateComment = async (req, res) => {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };
+
+export const patchCommentLike = async (req, res) => {
+  const user = await User.findOne({ firebaseId: req.user.uid });
+  const comment = await Comment.findById(req.params.commentId);
+  if (!comment) {
+    res
+      .status(400)
+      .json({ status: "error", errorMessage: "올바르지 않은 요청입니다." });
+  } else if (comment.like.includes(user.id)) {
+    const filteredLike = comment.like.filter(function (value, index, arr) {
+      return value != user.id;
+    });
+    comment.like = filteredLike;
+    comment.save();
+  } else {
+    comment.like.push(user.id);
+    comment.save();
+  }
+};
