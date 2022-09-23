@@ -11,10 +11,6 @@ export const getPost = async (req, res) => {
       populate: { path: "owner", model: "User" },
     })
     .populate({ path: "owner", model: "User" })
-    .populate({
-      path: "like",
-      model: "User",
-    })
     .populate({ path: "marker", model: "Marker" });
   res.status(200).json(post);
 };
@@ -25,7 +21,7 @@ export const getPosts = async (req, res) => {
     .populate({
       path: "comments",
       model: "Comment",
-      populate: { path: "owner", mode: "User" },
+      select: "id",
     })
     .populate({ path: "owner", model: "User" })
     .populate({ path: "marker", model: "Marker" });
@@ -68,18 +64,28 @@ export const patchLike = async (req, res) => {
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
   const post = await Post.findById(postId).select("state owner");
-  console.log(req.user.userId);
-  console.log(post.owner);
   if (req.user.userId != post.owner) {
     return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
   }
-  // if (post.state == "deleted")
-  //   res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
-  // if (post.state == "active") {
-  //   post.state = "deleted";
-  // }
-  // post.save();
+  if (post.state == "deleted")
+    res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
+  if (post.state == "active") {
+    post.state = "deleted";
+  }
+  post.save();
   return res.status(200).json(post);
+};
+
+export const deleteComment = async (req, res) => {
+  const { commentId } = req.params;
+  const user = await User.findOne({ firebaseId: req.user.uid }).select("_id");
+
+  // userId 찾아서 comment 작성자가 동일한지 체크
+
+  const newComment = await Comment.findByIdAndUpdate(commentId, {
+    isDeleted: true,
+  });
+  res.status(200).json(newComment);
 };
 
 export const postEditComment = async (req, res) => {
@@ -119,7 +125,7 @@ export const postCreateComment = async (req, res) => {
     //parentComment가 ObjectId면 부모 객체를 찾아서 children에 추가
     const { parentComment, comment } = req.body;
     const newComment = await Comment.create({
-      owner: user._id,
+      owner: user,
       post: postId,
       parentComment,
       comment,
@@ -131,7 +137,7 @@ export const postCreateComment = async (req, res) => {
 };
 
 export const patchCommentLike = async (req, res) => {
-  const user = await User.findOne({ firebaseId: req.user.uid });
+  const user = await User.findById(req.user.userId);
   const comment = await Comment.findById(req.params.commentId);
   if (!comment) {
     res
@@ -147,26 +153,5 @@ export const patchCommentLike = async (req, res) => {
     comment.like.push(user.id);
     comment.save();
   }
-  res.status(200).json({ status: "success", like: comment.like });
-};
-
-export const deleteComment = async (req, res) => {
-  try {
-    const { commentId } = req.params;
-    const user = await User.findById(req.user.userId).select("_id");
-    const comment = await Comment.findById(commentId).select("owner isDeleted");
-    if (comment.owner != user.id) {
-      return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
-    }
-    if (comment.isDeleted) {
-      return res
-        .status(400)
-        .json({ errorMessage: "이미 삭제된 게시글입니다." });
-    }
-    comment.isDeleted = true;
-    comment.save();
-    return res.status(200).json(comment);
-  } catch (e) {
-    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
-  }
+  res.status(200).json(comment.like);
 };
