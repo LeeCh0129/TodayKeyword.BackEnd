@@ -13,7 +13,7 @@ const commentSchema = new mongoose.Schema(
       ref: "Comment",
       default: null,
     },
-    comment: { type: String, maxLength: 20, required: true },
+    comment: { type: String, maxLength: 100, required: true },
     like: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     isDeleted: { type: Boolean, default: false, required: true },
   },
