@@ -153,9 +153,7 @@ export const deleteComment = async (req, res) => {
       return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
     }
     if (comment.isDeleted) {
-      return res
-        .status(400)
-        .json({ errorMessage: "이미 삭제된 게시글입니다." });
+      return res.status(400).json({ errorMessage: "이미 삭제된 댓글입니다." });
     }
     comment.isDeleted = true;
     comment.save();
