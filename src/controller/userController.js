@@ -73,7 +73,7 @@ export const getProfile = async (req, res) => {
     .populate({
       path: "comments",
       model: "Comment",
-      populate: { path: "owner", model: "User" },
+      select: "id",
     })
     .populate({ path: "owner", model: "User" })
     .populate({
@@ -81,7 +81,6 @@ export const getProfile = async (req, res) => {
       model: "User",
     })
     .populate({ path: "marker", model: "Marker" });
-
   if (!posts) {
     res.status(400).json({ errorMessage: "절못된 요청입니다." });
   }
@@ -89,9 +88,22 @@ export const getProfile = async (req, res) => {
 };
 
 export const getBookmark = async (req, res) => {
-  const bookmark = await User.findOne({ firebaseId: req.user.uid }).select(
-    "bookmarkPosts"
-  );
+  const bookmark = await User.findById(req.params.userId).populate({
+    path: "bookmarkPosts",
+    model: "Post",
+    populate: [
+      {
+        path: "comments",
+        model: "Comment",
+        select: "id",
+      },
+      { path: "owner", model: "User" },
+      { path: "marker", model: "Marker" },
+    ],
+  });
+  // .populate({ path: "owner", model: "User" })
+  // .populate({ path: "marker", model: "Marker" });
+
   if (!bookmark) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }

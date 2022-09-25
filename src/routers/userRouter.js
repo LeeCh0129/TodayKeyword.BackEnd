@@ -14,7 +14,7 @@ const router = express.Router();
 router.get("/:userId([0-9a-f]{24})", ensureAuthorized, getUser);
 router.post("/signin", signIn);
 router.post("/signup", signUp);
-router.get("/bookmark", ensureAuthorized, getBookmark);
+router.get("/bookmark/:userId([0-9a-f]{24})", ensureAuthorized, getBookmark);
 router.patch(
   "/bookmark/:postId([0-9a-f]{24})",
   ensureAuthorized,
