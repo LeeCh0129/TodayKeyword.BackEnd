@@ -5,6 +5,11 @@ import User from "../models/User.js";
 export const getPost = async (req, res) => {
   const { postId } = req.params;
   const post = await Post.findById(postId)
+    .populate({
+      path: "comments",
+      model: "Comment",
+      populate: { path: "owner", model: "User" },
+    })
     .populate({ path: "owner", model: "User" })
     .populate({ path: "marker", model: "Marker" });
   res.status(200).json(post);
