@@ -12,7 +12,12 @@ const userSchema = new mongoose.Schema(
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     univ: { type: String },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+    versionKey: false,
+  }
 );
 
 userSchema.virtual("myPosts", {

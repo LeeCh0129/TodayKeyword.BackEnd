@@ -1,6 +1,9 @@
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
+import moment from "moment";
+
+const numberOfPostsPerDay = 3;
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
@@ -30,7 +33,16 @@ export const getPosts = async (req, res) => {
 
 export const postCreatePost = async (req, res) => {
   let imageUrls = [];
-  const user = await User.findOne({ firebaseId: req.user.uid });
+  const user = await User.findById(req.user.userId).select("id").populate({
+    path: "myPosts",
+    model: "Post",
+    select: "createdAt",
+  });
+  if (checkNumberOfPostsPerDay(user)) {
+    return res.status(400).json({
+      errorMessage: `하루에 최대 ${numberOfPostsPerDay}개 이상 작성하실 수 없습니다`,
+    });
+  }
   req.files.forEach((file) => imageUrls.push(file.key));
   const { marker, review, keyword, rating } = req.body;
   const post = await Post.create({
@@ -161,4 +173,22 @@ export const deleteComment = async (req, res) => {
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
+};
+
+const checkNumberOfPostsPerDay = async (userId) => {
+  const user = await User.findById(userId)
+    .select("id")
+    .populate({
+      path: "myPosts",
+      model: "Post",
+      select: "createdAt",
+      match: {
+        createdAt: {
+          $gte: moment().startOf("day").toDate(),
+          $lte: moment().endOf("day").toDate(),
+        },
+      },
+    });
+  if (user.myPosts.length >= numberOfPostsPerDay) return false;
+  return true;
 };
