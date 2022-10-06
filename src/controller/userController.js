@@ -2,20 +2,7 @@ import axios from "axios";
 import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
-
-const usersProjection = {
-  service: 0,
-  createdAt: 0,
-  updatedAt: 0,
-  firebaseId: 0,
-  email: 0,
-  avatar: 1,
-  state: 0,
-  name: 1,
-  nickName: 1,
-  likedPosts: 0,
-  bookmarkPosts: 0,
-};
+import request from "request";
 
 export const getUser = async (req, res) => {
   const user = await User.findById(req.params.userId);
@@ -23,6 +10,7 @@ export const getUser = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
+  console.log(req);
   const userId = await User.findOne({ firebaseId: req.body.uid }).select("_id"); //DB에서 유저 확인
   if (!userId) {
     return res.status(204).json({ errorMessage: "회원가입을 진행해주세요." });
@@ -33,6 +21,16 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
   const user = req.body;
+  // if (user.service == "kakao") {
+  //   var Options = {
+  //     headers: { Authorization: `Bearer ${user.token}` },
+  //     url: "https://kapi.kakao.com/v2/user/me",
+  //     body: null,
+  //   };
+  // }
+  // request.post(Options, function (err, res, result) {
+  //   console.log(result);
+  // });
   const newUser = await User.create({
     service: user.service,
     email: user.email,
@@ -68,18 +66,15 @@ export const createCustomToken = async (req, userId) => {
 };
 
 export const getProfile = async (req, res) => {
-  const posts = await Post.find({ owner: req.user.userId })
+  const posts = await Post.find({ owner: req.user.userId, state: "active" })
     .populate({
       path: "comments",
       model: "Comment",
       select: "id",
     })
     .populate({ path: "owner", model: "User" })
-    .populate({
-      path: "like",
-      model: "User",
-    })
     .populate({ path: "marker", model: "Marker" });
+
   if (!posts) {
     res.status(400).json({ errorMessage: "절못된 요청입니다." });
   }
