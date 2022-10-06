@@ -11,6 +11,8 @@ export const getUser = async (req, res) => {
 
 export const signIn = async (req, res) => {
   console.log(req);
+  console.log(req.body);
+
   const userId = await User.findOne({ firebaseId: req.body.uid }).select("_id"); //DB에서 유저 확인
   if (!userId) {
     return res.status(204).json({ errorMessage: "회원가입을 진행해주세요." });
