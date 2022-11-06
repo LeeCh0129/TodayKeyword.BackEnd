@@ -86,11 +86,6 @@ export const getProfile = async (req, res) => {
     res.status(400).json({ errorMessage: "절못된 요청입니다." });
   }
   res.status(200).json({ posts });
-  // const user = await User.findOne(
-  //   { firebaseId: req.user.uid },
-  //   usersProjection
-  // );
-  // res.status(200).json(user);
 };
 
 export const getBookmark = async (req, res) => {
