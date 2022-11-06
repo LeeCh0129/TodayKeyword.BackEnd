@@ -1,6 +1,7 @@
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
+import Marker from "../models/Marker.js";
 import moment from "moment";
 
 const numberOfPostsPerDay = 3;
@@ -29,6 +30,47 @@ export const getPosts = async (req, res) => {
     .populate({ path: "owner", model: "User" })
     .populate({ path: "marker", model: "Marker" });
   res.status(200).json({ posts });
+};
+
+export const getHotPlace = async (req, res) => {
+  //작성일이 오늘보다 작고 x일보다 크다면 조회
+  const posts = await Post.find({
+    createdAt: {
+      $gte: moment().startOf("day").subtract(60, "days"),
+      $lt: moment(),
+    },
+  }).select("marker");
+
+  //빈 객체 생성
+  //posts를 람다식으로 돌려 marker 키가 없다면 추가하고 값에 1 대입 있다면 1을 더함
+  posts.forEach((post) => {
+    let markerId = post.marker.toString();
+    if (!markers[markerId]) {
+      markers[markerId] = 1;
+    } else {
+      markers[markerId]++;
+    }
+  });
+
+  //빈 배열 생성
+  let array = [];
+  //객체를 람다식으로 돌려서 크기 순으로 정렬하여 배열에 넣음
+  const sortedData = Object.keys(
+    Object.fromEntries(Object.entries(markers).sort(([, a], [, b]) => a - b))
+  );
+
+  if (sortedData.length > 10) {
+    sortedData.length = 10;
+  }
+
+  //배열의 마커를 DB에서 조회해 클라이언트에 전달
+  const hotPlace = await Marker.find({
+    _id: {
+      $in: sortedData,
+    },
+  });
+
+  return res.status(200).json(hotPlace);
 };
 
 export const postCreatePost = async (req, res) => {

@@ -2,7 +2,6 @@ import axios from "axios";
 import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
-import request from "request";
 
 export const getUser = async (req, res) => {
   const user = await User.findById(req.params.userId);
@@ -10,9 +9,6 @@ export const getUser = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
   const userId = await User.findOne({ firebaseId: req.body.uid }).select("_id"); //DB에서 유저 확인
   if (!userId) {
     return res.status(204).json({ errorMessage: "회원가입을 진행해주세요." });
@@ -23,16 +19,6 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
   const user = req.body;
-  // if (user.service == "kakao") {
-  //   var Options = {
-  //     headers: { Authorization: `Bearer ${user.token}` },
-  //     url: "https://kapi.kakao.com/v2/user/me",
-  //     body: null,
-  //   };
-  // }
-  // request.post(Options, function (err, res, result) {
-  //   console.log(result);
-  // });
   const newUser = await User.create({
     service: user.service,
     email: user.email,
