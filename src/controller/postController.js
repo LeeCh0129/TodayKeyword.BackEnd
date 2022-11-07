@@ -162,3 +162,23 @@ export const deleteComment = async (req, res) => {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };
+
+export const patchPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const user = await User.findById(req.user.userId).select("_id");
+    const post = await Post.findById(postId);
+    console.log(post);
+    if (post.owner != user.id) {
+      return res
+        .status(403)
+        .json({ errorMessage: "해당 게시글의 작성자가 아닙니다." });
+    }
+    if (req.user.userId == post.owner) {
+      post.save();
+      res.status(200).json(post);
+    }
+  } catch (e) {
+    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
