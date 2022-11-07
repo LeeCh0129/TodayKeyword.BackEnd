@@ -11,6 +11,7 @@ import {
   postCreateComment,
   patchLike,
   patchCommentLike,
+  patchPost,
   getHotPlace,
 } from "../controller/postController.js";
 
@@ -25,7 +26,11 @@ router.post(
   postCreatePost
 );
 
-router.route("/:postId([0-9a-f]{24})").all(ensureAuthorized).delete(deletePost);
+router
+  .route("/:postId([0-9a-f]{24})")
+  .all(ensureAuthorized)
+  .delete(deletePost)
+  .patch(patchPost);
 // router.route("/:id").get(getPost);
 router.patch("/:postId([0-9a-f]{24})/like", ensureAuthorized, patchLike); //게시글 좋아요
 
