@@ -4,6 +4,7 @@ import morgan from "morgan";
 import userRouter from "./routers/userRouter.js";
 import postRouter from "./routers/postRouter.js";
 import markerRouter from "./routers/markerRouter.js";
+import pushRouter from "./routers/pushRouter.js";
 import "dotenv/config";
 
 const app = express();
@@ -27,6 +28,7 @@ app.get("/map", (req, res) => {
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/marker", markerRouter);
+app.use("/push", pushRouter);
 app.listen(PORT, function () {
   console.log(`✅ 서버 열림 port:${PORT}`);
 });

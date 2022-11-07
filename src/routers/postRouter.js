@@ -12,6 +12,7 @@ import {
   patchLike,
   patchCommentLike,
   patchPost,
+  getHotPlace,
 } from "../controller/postController.js";
 
 const router = express.Router();
@@ -56,3 +57,5 @@ router.patch(
 );
 
 export default router;
+
+router.get("/hot-place", getHotPlace);
