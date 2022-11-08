@@ -13,9 +13,14 @@ const postSchema = new mongoose.Schema(
       ref: "User",
     },
     marker: { type: mongoose.Schema.Types.ObjectId, ref: "Marker" },
-    review: { type: String, required: true, maxLength: 30 },
+    review: { type: String, required: true, maxLength: 500 },
     like: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    state: { type: String, default: "active", required: true },
+    state: {
+      type: String,
+      default: "active",
+      enum: ["active", "deleted", "stored"],
+      required: true,
+    },
     keyword: {
       type: [String],
       validate: [keywordArrayLimit, "키워드는 최소 1개에서 최대 3개입니다."],
