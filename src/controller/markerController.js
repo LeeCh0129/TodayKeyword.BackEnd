@@ -12,6 +12,16 @@ export const getPostsFromMarker = async (req, res) => {
   res.status(200).json({ posts });
 };
 
-export const postCreateMarker = (req, res) => {
-  res.json({});
+export const postCreateMarker = async (req, res) => {
+  const { lat, lng, category, store, address } = req.body;
+  const newMarker = await Marker.create({
+    position: {
+      lat,
+      lng,
+    },
+    store,
+    category,
+    address,
+  });
+  res.status(200).json(newMarker);
 };
