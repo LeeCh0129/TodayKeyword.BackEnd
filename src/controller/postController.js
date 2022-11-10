@@ -2,6 +2,7 @@ import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 import Marker from "../models/Marker.js";
+import Notification from "../models/Notification.js";
 import moment from "moment";
 
 const numberOfPostsPerDay = 3;
@@ -33,7 +34,6 @@ export const getPosts = async (req, res) => {
 };
 
 export const getHotPlace = async (req, res) => {
-  //작성일이 오늘보다 작고 x일보다 크다면 조회
   const posts = await Post.find({
     createdAt: {
       $gte: moment().startOf("day").subtract(60, "days"),
@@ -41,8 +41,6 @@ export const getHotPlace = async (req, res) => {
     },
   }).select("marker");
 
-  //빈 객체 생성
-  //posts를 람다식으로 돌려 marker 키가 없다면 추가하고 값에 1 대입 있다면 1을 더함
   posts.forEach((post) => {
     let markerId = post.marker.toString();
     if (!markers[markerId]) {
@@ -52,9 +50,7 @@ export const getHotPlace = async (req, res) => {
     }
   });
 
-  //빈 배열 생성
   let array = [];
-  //객체를 람다식으로 돌려서 크기 순으로 정렬하여 배열에 넣음
   const sortedData = Object.keys(
     Object.fromEntries(Object.entries(markers).sort(([, a], [, b]) => a - b))
   );
@@ -63,7 +59,6 @@ export const getHotPlace = async (req, res) => {
     sortedData.length = 10;
   }
 
-  //배열의 마커를 DB에서 조회해 클라이언트에 전달
   const hotPlace = await Marker.find({
     _id: {
       $in: sortedData,
@@ -102,15 +97,26 @@ export const patchLike = async (req, res) => {
   const user = await User.findOne({ firebaseId: req.user.uid });
   const { postId } = req.params;
   let post = await Post.findById(postId);
-  if (post.like.includes(user.id)) {
-    const filteredLike = post.like.filter(function (value, index, arr) {
-      return value != user.id;
-    });
-    post.like = filteredLike;
-    post.save();
-  } else {
-    post.like.push(user.id);
-    post.save();
+  try {
+    if (post.like.includes(user.id)) {
+      const filteredLike = post.like.filter(function (value, index, arr) {
+        return value != user.id;
+      });
+      post.like = filteredLike;
+      post.save();
+    } else {
+      post.like.push(user.id);
+      await post.save();
+      Notification.create({
+        sender: user._id,
+        receiver: post.owner,
+        message: "좋아요를 남겼습니다.",
+        post: post._id,
+        type: "review",
+      });
+    }
+  } catch (e) {
+    res.status(400).json({ errorMessage: "요청 처리중 에러가 발생했습니다." });
   }
   res.json({ status: "success", like: post.like });
 };
