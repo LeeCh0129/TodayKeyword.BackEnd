@@ -12,6 +12,7 @@ import {
   patchLike,
   patchCommentLike,
   patchPost,
+  getHotPlace,
   search,
 } from "../controller/postController.js";
 
@@ -59,3 +60,5 @@ router.patch(
 router.get("/search", search); // 게시글 검색
 
 export default router;
+
+router.get("/hot-place", getHotPlace);

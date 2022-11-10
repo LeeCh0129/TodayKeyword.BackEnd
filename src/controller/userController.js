@@ -3,23 +3,8 @@ import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
 
-const usersProjection = {
-  service: 0,
-  createdAt: 0,
-  updatedAt: 0,
-  firebaseId: 0,
-  email: 0,
-  avatar: 1,
-  state: 0,
-  name: 1,
-  nickName: 1,
-  likedPosts: 0,
-  bookmarkPosts: 0,
-};
-
 export const getUser = async (req, res) => {
   const user = await User.findById(req.params.userId);
-  console.log(user);
   res.status(200).json(user);
 };
 
@@ -69,17 +54,13 @@ export const createCustomToken = async (req, userId) => {
 };
 
 export const getProfile = async (req, res) => {
-  const posts = await Post.find({ owner: req.user.userId })
+  const posts = await Post.find({ owner: req.user.userId, state: "active" })
     .populate({
       path: "comments",
       model: "Comment",
-      populate: { path: "owner", model: "User" },
+      select: "id",
     })
     .populate({ path: "owner", model: "User" })
-    .populate({
-      path: "like",
-      model: "User",
-    })
     .populate({ path: "marker", model: "Marker" });
 
   if (!posts) {
@@ -89,9 +70,22 @@ export const getProfile = async (req, res) => {
 };
 
 export const getBookmark = async (req, res) => {
-  const bookmark = await User.findOne({ firebaseId: req.user.uid }).select(
-    "bookmarkPosts"
-  );
+  const bookmark = await User.findById(req.params.userId).populate({
+    path: "bookmarkPosts",
+    model: "Post",
+    populate: [
+      {
+        path: "comments",
+        model: "Comment",
+        select: "id",
+      },
+      { path: "owner", model: "User" },
+      { path: "marker", model: "Marker" },
+    ],
+  });
+  // .populate({ path: "owner", model: "User" })
+  // .populate({ path: "marker", model: "Marker" });
+
   if (!bookmark) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
