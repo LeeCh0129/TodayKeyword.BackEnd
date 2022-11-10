@@ -1,4 +1,3 @@
-import axios from "axios";
 import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
@@ -83,8 +82,6 @@ export const getBookmark = async (req, res) => {
       { path: "marker", model: "Marker" },
     ],
   });
-  // .populate({ path: "owner", model: "User" })
-  // .populate({ path: "marker", model: "Marker" });
 
   if (!bookmark) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });

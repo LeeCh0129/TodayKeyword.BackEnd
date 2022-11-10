@@ -34,6 +34,11 @@
       markersInfo = [],
       infoWindows = [];
 
+    var markerImages = [
+      "https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785",
+      "https://item.kakaocdn.net/do/d84248170c2c52303db27306a00fb861f604e7b0e6900f9ac53a43965300eb9a",
+    ];
+
     var knu_bounds = new naver.maps.LatLngBounds(
       new naver.maps.LatLng(37.261941, 127.1306056),
       new naver.maps.LatLng(37.2844342, 127.1158903)
@@ -74,17 +79,29 @@
           markerList[index]["position"]["lat"],
           markerList[index]["position"]["lng"]
         );
+        var markerImage;
+        switch (markerList[index]["category"]) {
+          case "식당":
+            markerImage = markerImages[0];
+            break;
+          case "카페":
+            markerImage = markerImages[1];
+            break;
+        }
+
         var marker = new naver.maps.Marker({
           map: map,
           position: position,
           title: markerList[index]["store"],
           icon: {
             content:
-              '<img src="https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785" alt="" ' +
+              '<img src="' +
+              markerImage +
+              '" alt="" ' +
               'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
-              '-webkit-user-select: none; position: absolute; width: 50px; height: 50px; left: 0px; top: 0px;">',
-            size: new naver.maps.Size(35, 35),
-            anchor: new naver.maps.Point(35, 35),
+              '-webkit-user-select: none; position: absolute; width: 40px; height: 40px; left: 0px; top: 0px;">',
+            size: new naver.maps.Size(0, 0),
+            anchor: new naver.maps.Point(25, 25),
           },
           zIndex: 100,
         });
@@ -135,10 +152,9 @@
       map.addListener("click", function (e) {
         if (infoWindow.getMap()) {
           infoWindow.close();
+          createMarker.postMessage(false);
         } else {
-          console.log(JSON.stringify(e.coord));
-
-          // searchCoordinateToAddress(e.coord);
+          searchCoordinateToAddress(e.coord);
         }
       });
     }
@@ -164,26 +180,25 @@
           for (var i = 0, ii = items.length, item, addrType; i < ii; i++) {
             item = items[i];
             address = makeAddress(item) || "";
-            addrType =
-              item.name === "roadaddr" ? "[도로명 주소]" : "[지번 주소]";
+            addrType = item.name === "roadaddr" ? "[도로명]" : "[지번]";
             htmlAddresses.push(addrType + " " + address);
           }
 
-          // infoWindow.setContent(
-          //   [
-          //     '<div style="padding:10px;min-width:150px;line-height:100%;">',
-          //     '<h4 style="margin-top:5px;">검색 좌표' + latlng + "</h4><br />",
-          //     htmlAddresses.join("<br />"),
-          //     "</div>",
-          //   ].join("\n")
-          // );
+          infoWindow.setContent(
+            [
+              '<div style="padding:10px;min-width:150px;line-height:100%;">',
+              '<h4 style="margin-top:5px;">검색 좌표' + latlng + "</h4><br />",
+              htmlAddresses.join("<br />"),
+              "</div>",
+            ].join("\n")
+          );
 
-          // infoWindow.open(map, latlng);
-          sendToApp.postMessage(
+          infoWindow.open(map, latlng);
+          createMarker.postMessage(
             JSON.stringify({
               latitude: latlng._lat,
               longitude: latlng._lng,
-              roadAddress: htmlAddresses[0],
+              htmlAddresses,
             })
           );
         }
@@ -272,9 +287,9 @@
       return function (e) {
         var marker = markers[index],
           markerInfo = markersInfo[index];
-        console.log(JSON.stringify(markersInfo[index]));
+        // console.log(JSON.stringify(markersInfo[index]));
         map.setCenter(marker.position);
-        map.setZoom(17);
+        map.setZoom(map.zoom);
         markerCallBack.postMessage(JSON.stringify({ markerInfo }));
       };
     }
