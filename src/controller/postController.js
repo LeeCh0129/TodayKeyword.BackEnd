@@ -1,6 +1,8 @@
 import Post from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
+import { DeleteBucketAnalyticsConfigurationCommand } from "@aws-sdk/client-s3";
+import Marker from "../models/Marker.js";
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
@@ -180,5 +182,26 @@ export const patchPost = async (req, res) => {
     }
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
+
+export const search = async (req, res) => {
+  try {
+    let result;
+    switch (req.query.type) {
+      case "review":
+        result = await Post.find({ review: new RegExp(req.query.content) })
+          .populate({ path: "owner", model: "User" })
+          .populate({ path: "marker", model: "Marker" });
+        break;
+      case "marker":
+        result = await Marker.find({ store: new RegExp(req.query.content) });
+        break;
+      default:
+        return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+    }
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };

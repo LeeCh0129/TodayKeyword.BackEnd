@@ -12,6 +12,7 @@ import {
   patchLike,
   patchCommentLike,
   patchPost,
+  search,
 } from "../controller/postController.js";
 
 const router = express.Router();
@@ -54,5 +55,7 @@ router.patch(
   ensureAuthorized,
   patchCommentLike
 );
+
+router.get("/search", search); // 게시글 검색
 
 export default router;
