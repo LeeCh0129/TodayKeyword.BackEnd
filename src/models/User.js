@@ -7,11 +7,12 @@ const userSchema = new mongoose.Schema(
     deviceToken: { type: String },
     email: { type: String, unique: true },
     avatar: { type: String },
-    state: { type: String, default: "active" },
+    state: { type: String, enum: ["active", "deleted"], default: "active" },
     name: { type: String },
     nickName: { type: String },
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     univ: { type: String },
+    deletedAt: { type: Date },
   },
   {
     timestamps: true,
