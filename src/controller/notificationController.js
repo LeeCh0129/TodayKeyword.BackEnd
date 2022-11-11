@@ -24,15 +24,14 @@ export const sendNotification = async (notification) => {
     },
     token: notification.receiver.deviceToken,
   };
-  setTimeout(() => {
-    admin
-      .messaging()
-      .send(message)
-      .then(function (response) {
-        console.log("Successfully sent message: : ", response);
-      })
-      .catch(function (err) {
-        console.log("Error Sending message!!! : ", err);
-      });
-  }, 3000);
+
+  admin
+    .messaging()
+    .send(message)
+    .then(function (response) {
+      console.log("Successfully sent message: : ", response);
+    })
+    .catch(function (err) {
+      console.log("Error Sending message!!! : ", err);
+    });
 };

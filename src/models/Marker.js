@@ -7,7 +7,11 @@ const markerSchema = new mongoose.Schema({
   },
   store: { type: String, required: true },
   address: { type: String, required: true },
-  category: { type: String, required: true },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Category",
+  },
   state: { type: String, required: true, default: "active" },
 });
 

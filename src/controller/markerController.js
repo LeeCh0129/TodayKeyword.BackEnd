@@ -2,7 +2,10 @@ import Marker from "../models/Marker.js";
 import Post from "../models/Post.js";
 
 export const getMarker = async (req, res) => {
-  const marker = await Marker.find({});
+  const marker = await Marker.find().populate({
+    path: "category",
+    model: "Category",
+  });
   res.json(marker);
 };
 
