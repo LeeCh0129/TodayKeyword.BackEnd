@@ -3,6 +3,7 @@ import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 import Marker from "../models/Marker.js";
 import Notification from "../models/Notification.js";
+import Category from "../models/Category.js";
 import moment from "moment";
 
 const numberOfPostsPerDay = 3;
@@ -50,7 +51,6 @@ export const getHotPlace = async (req, res) => {
     }
   });
 
-  let array = [];
   const sortedData = Object.keys(
     Object.fromEntries(Object.entries(markers).sort(([, a], [, b]) => a - b))
   );
@@ -81,13 +81,13 @@ export const postCreatePost = async (req, res) => {
     });
   }
   req.files.forEach((file) => imageUrls.push(file.key));
-  const { marker, review, keyword, rating } = req.body;
+  const { marker, review, keywords, rating } = req.body;
   const post = await Post.create({
     owner: user._id,
     imageUrls,
     marker,
     review,
-    keyword,
+    keywords,
     rating,
   });
   res.json({ status: "success", post });
@@ -98,22 +98,24 @@ export const patchLike = async (req, res) => {
   const { postId } = req.params;
   let post = await Post.findById(postId);
   try {
-    if (post.like.includes(user.id)) {
+    if (post.like.includes(user._id)) {
       const filteredLike = post.like.filter(function (value, index, arr) {
         return value != user.id;
       });
       post.like = filteredLike;
       post.save();
     } else {
-      post.like.push(user.id);
+      post.like.push(user._id);
       await post.save();
-      Notification.create({
-        sender: user._id,
-        receiver: post.owner,
-        message: "좋아요를 남겼습니다.",
-        post: post._id,
-        type: "review",
-      });
+      if (!(await Notification.exists({ sender: user._id, post: post._id }))) {
+        Notification.create({
+          sender: user._id,
+          receiver: post.owner,
+          message: "좋아요를 남겼습니다.",
+          post: post._id,
+          type: "review",
+        });
+      }
     }
   } catch (e) {
     res.status(400).json({ errorMessage: "요청 처리중 에러가 발생했습니다." });
@@ -124,11 +126,12 @@ export const patchLike = async (req, res) => {
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
   const post = await Post.findById(postId).select("state owner");
+  console.log(post);
   if (req.user.userId != post.owner) {
     return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
   }
   if (post.state == "deleted")
-    res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
+    return res.status(400).json({ errorMessage: "이미 삭제된 게시글입니다." });
   if (post.state == "active") {
     post.state = "deleted";
   }
@@ -156,9 +159,9 @@ export const getComments = async (req, res) => {
           model: "Comment",
           populate: { path: "owner", model: "User" },
         },
-        { path: "owner", mode: "User" },
+        { path: "owner", model: "User" },
       ])
-      .populate({ path: "owner" });
+      .populate({ path: "owner", model: "User" });
     res.status(200).json(comments);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
@@ -190,7 +193,7 @@ export const patchCommentLike = async (req, res) => {
   if (!comment) {
     res
       .status(400)
-      .json({ status: "error", errorMessage: "올바르지 않은 요청입니다." });
+      .json({ status: "error", errorMessage: "잘못된 요청입니다." });
   } else if (comment.like.includes(user.id)) {
     const filteredLike = comment.like.filter(function (value, index, arr) {
       return value != user.id;
@@ -279,5 +282,33 @@ export const search = async (req, res) => {
     return res.status(200).json(result);
   } catch (e) {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
+
+export const getCategories = async (req, res) => {
+  try {
+    const category = await Category.find({
+      code: new RegExp("A"),
+    }).select("title code");
+    return res.status(200).json(category);
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ errorMessage: "데이터 조회중 문제가 발생했습니다." });
+  }
+};
+
+export const getKeywords = async (req, res) => {
+  const { categoryId } = req.params;
+  try {
+    const keywords = await Category.find({
+      code: new RegExp("C"),
+      parentCode: categoryId,
+    });
+    return res.status(200).json(keywords);
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ errorMessage: "데이터 조회중 문제가 발생했습니다." });
   }
 };

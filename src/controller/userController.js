@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
 import moment from "moment";
+import Notification from "../models/Notification.js";
 
 export const getUser = async (req, res) => {
   const user = await User.findById(req.params.userId);
@@ -72,6 +73,13 @@ export const getProfile = async (req, res) => {
     res.status(400).json({ errorMessage: "절못된 요청입니다." });
   }
   res.status(200).json({ posts });
+};
+
+export const getNotification = async (req, res) => {
+  const notifications = await Notification.find({
+    receiver: req.user.userId,
+  });
+  return res.status(200).json(notifications);
 };
 
 export const getBookmark = async (req, res) => {

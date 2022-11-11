@@ -8,6 +8,7 @@ import {
   signUp,
   getUser,
   deleteUser,
+  getNotification,
 } from "../controller/userController.js";
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.patch(
   ensureAuthorized,
   patchBookmark
 );
+router.get("/notification", ensureAuthorized, getNotification);
 router.get("/user/bookmark/add/:bookmarkId", ensureAuthorized);
 router.get("/profile/:userId([0-9a-f]{24})", ensureAuthorized, getProfile);
 router.delete("/:userId([0-9a-f]{24})", ensureAuthorized, deleteUser);

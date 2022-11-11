@@ -22,7 +22,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     keyword: {
-      type: [String],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
       validate: [keywordArrayLimit, "키워드는 최소 1개에서 최대 3개입니다."],
     },
     rating: { type: Number, required: true },
