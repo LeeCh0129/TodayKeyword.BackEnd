@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import admin from "firebase-admin";
 import Post from "../models/Post.js";
+import moment from "moment";
 import Notification from "../models/Notification.js";
 
 export const getUser = async (req, res) => {
@@ -9,9 +10,14 @@ export const getUser = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  const userId = await User.findOne({ firebaseId: req.body.uid }).select("_id"); //DB에서 유저 확인
-  if (!userId) {
+  const user = await User.findOne({ firebaseId: req.body.uid }).select(
+    "_id state"
+  ); //DB에서 유저 확인
+  if (!user) {
     return res.status(204).json({ errorMessage: "회원가입을 진행해주세요." });
+  }
+  if (user.state == "deleted") {
+    return res.status(400).json({ errorMessage: "탈퇴한 회원입니다." });
   }
   const customToken = await createCustomToken(req, userId._id); //토큰 발급
   return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
@@ -115,4 +121,22 @@ export const patchBookmark = async (req, res) => {
     user.save();
   }
   res.status(200).json(user);
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    //토큰의 유저 id와 params의 id가 같은지 체크
+    if (req.user.userId != userId) {
+      return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+    }
+    const deletedUser = await User.findByIdAndUpdate(userId, {
+      state: "deleted",
+      deletedAt: Date.now(),
+    });
+    console.log(deletedUser);
+    return res.status(200).json({ msg: "성공적으로 탈퇴가 완료되었습니다." });
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
 };
