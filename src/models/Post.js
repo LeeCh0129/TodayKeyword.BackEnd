@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema(
       enum: ["active", "deleted", "stored"],
       required: true,
     },
-    keyword: {
+    keywords: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
       validate: [keywordArrayLimit, "키워드는 최소 1개에서 최대 3개입니다."],
     },
@@ -47,6 +47,22 @@ postSchema.virtual("comments", {
   ref: "Comment",
   localField: "_id",
   foreignField: "post",
+});
+
+postSchema.pre("find", function (next) {
+  this.populate({
+    path: "comments",
+    model: "Comment",
+    populate: { path: "owner", model: "User" },
+  })
+    .populate({ path: "owner", model: "User" })
+    .populate({ path: "keywords", model: "Category" })
+    .populate({
+      path: "marker",
+      model: "Marker",
+      populate: { path: "category", model: "Category" },
+    });
+  next();
 });
 
 const Post = mongoose.model("Post", postSchema);

@@ -10,27 +10,13 @@ const numberOfPostsPerDay = 3;
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId)
-    .populate({
-      path: "comments",
-      model: "Comment",
-      populate: { path: "owner", model: "User" },
-    })
-    .populate({ path: "owner", model: "User" })
-    .populate({ path: "marker", model: "Marker" });
+  const post = await Post.findById(postId);
   res.status(200).json(post);
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find({ state: "active" })
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "comments",
-      model: "Comment",
-      select: "id",
-    })
-    .populate({ path: "owner", model: "User" })
-    .populate({ path: "marker", model: "Marker" });
+  const posts = await Post.find({ state: "active" }).sort({ createdAt: -1 });
+  console.log(posts);
   res.status(200).json({ posts });
 };
 
@@ -70,20 +56,18 @@ export const getHotPlace = async (req, res) => {
 
 export const postCreatePost = async (req, res) => {
   let imageUrls = [];
-  const user = await User.findById(req.user.userId).select("id").populate({
-    path: "myPosts",
-    model: "Post",
-    select: "createdAt",
-  });
-  if (checkNumberOfPostsPerDay(user)) {
+  const { userId } = req.user;
+  if (!checkNumberOfPostsPerDay(userId)) {
     return res.status(400).json({
       errorMessage: `하루에 최대 ${numberOfPostsPerDay}개 이상 작성하실 수 없습니다`,
     });
   }
+
   req.files.forEach((file) => imageUrls.push(file.key));
   const { marker, review, keywords, rating } = req.body;
+  console.log(req.body);
   const post = await Post.create({
-    owner: user._id,
+    owner: userId,
     imageUrls,
     marker,
     review,
@@ -126,7 +110,6 @@ export const patchLike = async (req, res) => {
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
   const post = await Post.findById(postId).select("state owner");
-  console.log(post);
   if (req.user.userId != post.owner) {
     return res.status(400).json({ errorMessage: "작성자가 아닙니다." });
   }
@@ -172,8 +155,6 @@ export const postCreateComment = async (req, res) => {
   try {
     const user = await User.findOne({ firebaseId: req.user.uid });
     const { postId } = req.params;
-    //parentComment가 null이면 null을 넣고 생성
-    //parentComment가 ObjectId면 부모 객체를 찾아서 children에 추가
     const { parentComment, comment } = req.body;
     const newComment = await Comment.create({
       owner: user,
@@ -231,7 +212,6 @@ export const patchPost = async (req, res) => {
     const { postId } = req.params;
     const user = await User.findById(req.user.userId).select("_id");
     const post = await Post.findById(postId);
-    console.log(post);
     if (post.owner != user.id) {
       return res
         .status(403)
