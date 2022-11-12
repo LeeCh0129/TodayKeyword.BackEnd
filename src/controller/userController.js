@@ -19,7 +19,7 @@ export const signIn = async (req, res) => {
   if (user.state == "deleted") {
     return res.status(400).json({ errorMessage: "탈퇴한 회원입니다." });
   }
-  const customToken = await createCustomToken(req, userId._id); //토큰 발급
+  const customToken = await createCustomToken(req, user._id); //토큰 발급
   return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
 };
 
