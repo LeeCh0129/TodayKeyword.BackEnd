@@ -291,24 +291,24 @@ export const getKeywords = async (req, res) => {
   }
 };
 
-export const storage = async (req, res) => {
+export const patchStorage = async (req, res) => {
+  const { postId } = req.params;
+  const storagePost = await Post.findById(postId).select("owner state");
   try {
-    const { postId } = req.params;
-    console.log(req.params);
-    const user = await User.findById(req.user.userId).select("_id");
-    const storagePost = await Post.findById(postId).select("owner state");
-    console.log(storagePost);
-    if ((storagePost.owner = user.id) && storagePost.state == "active") {
+    if (storagePost.owner == req.user.userId && storagePost.state == "active") {
       storagePost.state = "stored";
       storagePost.save();
       return res.status(200).json(storagePost);
     }
-    if ((storagePost.owner = user.id) && storagePost.state == "deleted") {
+    if (
+      storagePost.owner == req.user.userId &&
+      storagePost.state == "deleted"
+    ) {
       return res
         .status(400)
         .json({ errorMessage: "이미 삭제된 게시물입니다." });
     }
-    if ((storagePost.owner = user.id) && storagePost.state == "stored") {
+    if (storagePost.owner == req.user.userId && storagePost.state == "stored") {
       return res
         .status(400)
         .json({ errorMessage: "이미 보관된 게시물입니다." });
