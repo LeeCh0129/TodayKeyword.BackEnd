@@ -16,7 +16,6 @@ export const getPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   const posts = await Post.find({ state: "active" }).sort({ createdAt: -1 });
-  console.log(posts);
   res.status(200).json({ posts });
 };
 
@@ -65,7 +64,6 @@ export const postCreatePost = async (req, res) => {
 
   req.files.forEach((file) => imageUrls.push(file.key));
   const { marker, review, keywords, rating } = req.body;
-  console.log(req.body);
   const post = await Post.create({
     owner: userId,
     imageUrls,
