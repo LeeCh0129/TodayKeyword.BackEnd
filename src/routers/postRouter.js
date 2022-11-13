@@ -16,6 +16,7 @@ import {
   search,
   getCategories,
   getKeywords,
+  storage,
 } from "../controller/postController.js";
 
 const router = express.Router();
@@ -64,3 +65,4 @@ router.get("/hot-place", getHotPlace);
 
 router.get("/categories", ensureAuthorized, getCategories);
 router.get("/keywords/:categoryId([0-9a-f]{24})", getKeywords);
+router.patch("/:postId([0-9a-f]{24})/storage", ensureAuthorized, storage);
