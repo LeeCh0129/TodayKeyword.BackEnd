@@ -257,3 +257,30 @@ export const getKeywords = async (req, res) => {
       .json({ errorMessage: "데이터 조회중 문제가 발생했습니다." });
   }
 };
+
+export const patchStorage = async (req, res) => {
+  const { postId } = req.params;
+  const storagePost = await Post.findById(postId).select("owner state");
+  try {
+    if (storagePost.owner == req.user.userId && storagePost.state == "active") {
+      storagePost.state = "stored";
+      storagePost.save();
+      return res.status(200).json(storagePost);
+    }
+    if (
+      storagePost.owner == req.user.userId &&
+      storagePost.state == "deleted"
+    ) {
+      return res
+        .status(400)
+        .json({ errorMessage: "이미 삭제된 게시물입니다." });
+    }
+    if (storagePost.owner == req.user.userId && storagePost.state == "stored") {
+      return res
+        .status(400)
+        .json({ errorMessage: "이미 보관된 게시물입니다." });
+    }
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
