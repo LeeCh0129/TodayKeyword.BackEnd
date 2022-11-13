@@ -12,7 +12,6 @@ import {
   patchLike,
   patchCommentLike,
   patchPost,
-  getHotPlace,
   search,
   getCategories,
   getKeywords,
@@ -60,8 +59,6 @@ router.patch(
 router.get("/search", search);
 
 export default router;
-
-router.get("/hot-place", getHotPlace);
 
 router.get("/categories", ensureAuthorized, getCategories);
 router.get("/keywords/:categoryId([0-9a-f]{24})", getKeywords);

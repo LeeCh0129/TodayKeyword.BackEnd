@@ -19,40 +19,6 @@ export const getPosts = async (req, res) => {
   res.status(200).json({ posts });
 };
 
-export const getHotPlace = async (req, res) => {
-  const posts = await Post.find({
-    createdAt: {
-      $gte: moment().startOf("day").subtract(60, "days"),
-      $lt: moment(),
-    },
-  }).select("marker");
-
-  posts.forEach((post) => {
-    let markerId = post.marker.toString();
-    if (!markers[markerId]) {
-      markers[markerId] = 1;
-    } else {
-      markers[markerId]++;
-    }
-  });
-
-  const sortedData = Object.keys(
-    Object.fromEntries(Object.entries(markers).sort(([, a], [, b]) => a - b))
-  );
-
-  if (sortedData.length > 10) {
-    sortedData.length = 10;
-  }
-
-  const hotPlace = await Marker.find({
-    _id: {
-      $in: sortedData,
-    },
-  });
-
-  return res.status(200).json(hotPlace);
-};
-
 export const postCreatePost = async (req, res) => {
   let imageUrls = [];
   const { userId } = req.user;
@@ -143,6 +109,7 @@ export const getComments = async (req, res) => {
         { path: "owner", model: "User" },
       ])
       .populate({ path: "owner", model: "User" });
+    console.log(comments);
     res.status(200).json(comments);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
