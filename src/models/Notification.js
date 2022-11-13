@@ -42,6 +42,15 @@ notificationSchema.pre("save", async function () {
   return sendNotification(this);
 });
 
+notificationSchema.pre("find", function (next) {
+  this.populate({
+    path: "receiver",
+    model: "User",
+  }).populate({ path: "sender", model: "User" });
+
+  next();
+});
+
 const Notification = mongoose.model("Notification", notificationSchema);
 
 export default Notification;
