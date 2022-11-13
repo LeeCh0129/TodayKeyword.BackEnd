@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String },
     state: { type: String, enum: ["active", "deleted"], default: "active" },
     name: { type: String },
-    nickName: { type: String },
+    nickname: { type: String },
     bookmarkPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     univ: { type: String },
     deletedAt: { type: Date },
