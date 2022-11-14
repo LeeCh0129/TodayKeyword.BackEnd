@@ -15,6 +15,14 @@ const markerSchema = new mongoose.Schema({
   state: { type: String, required: true, default: "active" },
 });
 
+markerSchema.pre("find", function (next) {
+  this.populate({
+    path: "category",
+    model: "Category",
+  });
+  next();
+});
+
 const Marker = mongoose.model("Marker", markerSchema);
 
 export default Marker;
