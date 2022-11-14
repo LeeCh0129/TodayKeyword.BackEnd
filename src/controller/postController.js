@@ -149,6 +149,21 @@ export const patchCommentLike = async (req, res) => {
   } else {
     comment.like.push(user.id);
     comment.save();
+    if (
+      !(await Notification.exists({
+        sender: user._id,
+        target: req.params.commentId,
+      }))
+    ) {
+      Notification.create({
+        sender: user._id,
+        receiver: comment.owner._id,
+        message: "좋아요를 남겼습니다.",
+        post: req.params.postId,
+        target: req.params.commentId,
+        type: "comment",
+      });
+    }
   }
   res.status(200).json(comment.like);
 };
