@@ -46,8 +46,13 @@ notificationSchema.pre("find", function (next) {
   this.populate({
     path: "receiver",
     model: "User",
-  }).populate({ path: "sender", model: "User" });
-
+  })
+    .populate({ path: "sender", model: "User" })
+    .populate({
+      path: "post",
+      model: "Post",
+      select: "imageUrls",
+    });
   next();
 });
 
