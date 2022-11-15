@@ -1,6 +1,7 @@
 import Marker from "../models/Marker.js";
 import Post from "../models/Post.js";
 import moment from "moment";
+import Category from "../models/Category.js";
 
 export const getMarker = async (req, res) => {
   const marker = await Marker.find().populate({
@@ -53,14 +54,36 @@ export const getHotPlace = async (req, res) => {
 
 export const postCreateMarker = async (req, res) => {
   const { lat, lng, category, store, address } = req.body;
-  const newMarker = await Marker.create({
-    position: {
-      lat,
-      lng,
-    },
-    store,
-    category,
-    address,
-  });
-  res.status(200).json(newMarker);
+  try {
+    let categoryModel;
+    switch (category) {
+      case "식당":
+        categoryModel = await Category.findOne({
+          code: "A1",
+        }).select("_id");
+        break;
+      case "카페":
+        categoryModel = await Category.findOne({
+          code: "A2",
+        }).select("_id");
+        break;
+      case "술집":
+        categoryModel = await Category.findOne({
+          code: "A3",
+        }).select("_id");
+    }
+    const newMarker = await Marker.create({
+      position: {
+        lat,
+        lng,
+      },
+      store,
+      category: categoryModel._id,
+      address,
+    });
+    return res.status(200).json(newMarker);
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
 };

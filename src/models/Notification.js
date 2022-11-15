@@ -15,7 +15,8 @@ const notificationSchema = new mongoose.Schema(
     },
     message: { type: String, required: true },
     post: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
-    type: { type: String, required: true, enum: ["review", "free", ""] },
+    target: { type: mongoose.Schema.Types.ObjectId },
+    type: { type: String, required: true, enum: ["review", "free", "comment"] },
     read: { type: Boolean, required: true, default: false },
   },
   {
@@ -40,6 +41,20 @@ notificationSchema.pre("save", async function () {
     },
   ]);
   return sendNotification(this);
+});
+
+notificationSchema.pre("find", function (next) {
+  this.populate({
+    path: "receiver",
+    model: "User",
+  })
+    .populate({ path: "sender", model: "User" })
+    .populate({
+      path: "post",
+      model: "Post",
+      select: "imageUrls",
+    });
+  next();
 });
 
 const Notification = mongoose.model("Notification", notificationSchema);

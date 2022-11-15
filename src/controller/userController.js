@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import admin from "firebase-admin";
-import Post from "../models/Post.js";
+import Post, { postDefaultPopulate } from "../models/Post.js";
 import Notification from "../models/Notification.js";
 
 export const getUser = async (req, res) => {
@@ -59,14 +59,10 @@ export const createCustomToken = async (req, userId) => {
 };
 
 export const getProfile = async (req, res) => {
-  const posts = await Post.find({ owner: req.user.userId, state: "active" })
-    .populate({
-      path: "comments",
-      model: "Comment",
-      select: "id",
-    })
-    .populate({ path: "owner", model: "User" })
-    .populate({ path: "marker", model: "Marker" });
+  const posts = await Post.find({
+    owner: req.user.userId,
+    state: "active",
+  }).populate(postDefaultPopulate);
 
   if (!posts) {
     res.status(400).json({ errorMessage: "절못된 요청입니다." });
@@ -85,15 +81,7 @@ export const getBookmark = async (req, res) => {
   const bookmark = await User.findById(req.params.userId).populate({
     path: "bookmarkPosts",
     model: "Post",
-    populate: [
-      {
-        path: "comments",
-        model: "Comment",
-        select: "id",
-      },
-      { path: "owner", model: "User" },
-      { path: "marker", model: "Marker" },
-    ],
+    populate: postDefaultPopulate,
   });
 
   if (!bookmark) {
@@ -128,7 +116,7 @@ export const deleteUser = async (req, res) => {
     if (req.user.userId != userId) {
       return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
     }
-    const deletedUser = await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(userId, {
       state: "deleted",
       deletedAt: Date.now(),
     });
