@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema(
     message: { type: String, required: true },
     post: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
     target: { type: mongoose.Schema.Types.ObjectId },
-    type: { type: String, required: true, enum: ["review", "free", "comment"] },
+    type: { type: String, required: true, enum: ["review", "free", ""] },
     read: { type: Boolean, required: true, default: false },
   },
   {

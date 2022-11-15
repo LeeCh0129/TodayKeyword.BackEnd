@@ -1,4 +1,4 @@
-import Post from "../models/Post.js";
+import Post, { postDefaultPopulate } from "../models/Post.js";
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
 import Marker from "../models/Marker.js";
@@ -10,12 +10,15 @@ const numberOfPostsPerDay = 3;
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId);
+  const post = await Post.findById(postId).populate(postDefaultPopulate);
   res.status(200).json(post);
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find({ state: "active" }).sort({ createdAt: -1 });
+  const posts = await Post.find({ state: "active" })
+    .populate(postDefaultPopulate)
+    .sort({ createdAt: -1 });
+  console.log(posts);
   res.status(200).json({ posts });
 };
 
@@ -109,7 +112,6 @@ export const getComments = async (req, res) => {
         { path: "owner", model: "User" },
       ])
       .populate({ path: "owner", model: "User" });
-    console.log(comments);
     res.status(200).json(comments);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
@@ -199,7 +201,7 @@ export const patchPost = async (req, res) => {
     }
     if (req.user.userId == post.owner) {
       post.save();
-      res.status(200).json(post);
+      res.status(200).json({ msg: "업데이트 성공" });
     }
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
@@ -229,9 +231,9 @@ export const search = async (req, res) => {
     let result;
     switch (req.query.type) {
       case "review":
-        result = await Post.find({ review: new RegExp(req.query.content) })
-          .populate({ path: "owner", model: "User" })
-          .populate({ path: "marker", model: "Marker" });
+        result = await Post.find({
+          review: new RegExp(req.query.content),
+        }).populate(postDefaultPopulate);
         break;
       case "marker":
         result = await Marker.find({ store: new RegExp(req.query.content) });
