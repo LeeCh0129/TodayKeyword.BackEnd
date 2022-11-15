@@ -258,28 +258,38 @@ export const getKeywords = async (req, res) => {
   }
 };
 
-export const patchStorage = async (req, res) => {
+export const patchStored = async (req, res) => {
   const { postId } = req.params;
-  const storagePost = await Post.findById(postId).select("owner state");
+  const storedPost = await Post.findById(postId).select("owner state");
   try {
-    if (storagePost.owner == req.user.userId && storagePost.state == "active") {
-      storagePost.state = "stored";
-      storagePost.save();
-      return res.status(200).json(storagePost);
+    if (storedPost.owner == req.user.userId && storedPost.state == "active") {
+      storedPost.state = "stored";
+      storedPost.save();
+      return res.status(200).json(storedPost);
     }
-    if (
-      storagePost.owner == req.user.userId &&
-      storagePost.state == "deleted"
-    ) {
+    if (storedPost.owner == req.user.userId && storedPost.state == "deleted") {
       return res
         .status(400)
         .json({ errorMessage: "이미 삭제된 게시물입니다." });
     }
-    if (storagePost.owner == req.user.userId && storagePost.state == "stored") {
+    if (storedPost.owner == req.user.userId && storedPost.state == "stored") {
       return res
         .status(400)
         .json({ errorMessage: "이미 보관된 게시물입니다." });
     }
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
+
+export const getStored = async (req, res) => {
+  const { userId } = req.params;
+  if (userId != req.user.userId) {
+    return res.status(400).json({ errorMessage: "게시글 작성자가 아닙니다." });
+  }
+  try {
+    const storedPost = await Post.find({ state: "stored", owner: userId });
+    return res.status(200).json({ storedPost });
   } catch (e) {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
