@@ -49,21 +49,20 @@ postSchema.virtual("comments", {
   foreignField: "post",
 });
 
-postSchema.pre("find", function (next) {
-  this.populate({
+export const postDefaultPopulate = [
+  {
     path: "comments",
     model: "Comment",
-    populate: { path: "owner", model: "User" },
-  })
-    .populate({ path: "owner", model: "User" })
-    .populate({ path: "keywords", model: "Category" })
-    .populate({
-      path: "marker",
-      model: "Marker",
-      populate: { path: "category", model: "Category" },
-    });
-  next();
-});
+    select: "id",
+  },
+  { path: "owner", model: "User" },
+  { path: "keywords", model: "Category" },
+  {
+    path: "marker",
+    model: "Marker",
+    populate: { path: "category", model: "Category" },
+  },
+];
 
 const Post = mongoose.model("Post", postSchema);
 

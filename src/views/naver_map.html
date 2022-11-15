@@ -20,6 +20,7 @@
       resize();
       window.addEventListener("resize", resize);
     });
+    var fontSize = "11px";
 
     function resize() {
       var Size = new naver.maps.Size(window.innerWidth, window.innerHeight);
@@ -35,8 +36,9 @@
       infoWindows = [];
 
     var markerImages = [
-      "https://item.kakaocdn.net/do/b5d3d6a7b67fbf5afdaffb79fffbf8b18f324a0b9c48f77dbce3a43bd11ce785",
-      "https://item.kakaocdn.net/do/d84248170c2c52303db27306a00fb861f604e7b0e6900f9ac53a43965300eb9a",
+      "https://today-keyword.s3.ap-northeast-2.amazonaws.com/icons/A01.svg",
+      "https://today-keyword.s3.ap-northeast-2.amazonaws.com/icons/A02.svg",
+      "https://today-keyword.s3.ap-northeast-2.amazonaws.com/icons/A03.svg",
     ];
 
     var knu_bounds = new naver.maps.LatLngBounds(
@@ -52,6 +54,9 @@
       minZoom: 16,
       mapTypeId: naver.maps.MapTypeId.NORMAL,
       maxBounds: knu_bounds,
+      // mapTypes: new naver.maps.MapTypeRegistry({
+      //   normal: naver.maps.NaverStyleMapTypeOptions.getVectorMap(),
+      // }),
     });
 
     var bounds = map.getBounds(),
@@ -79,7 +84,7 @@
           markerList[index]["position"]["lat"],
           markerList[index]["position"]["lng"]
         );
-        var markerImage;
+        let markerImage;
         switch (markerList[index]["category"]["title"]) {
           case "식당":
             markerImage = markerImages[0];
@@ -95,16 +100,25 @@
           title: markerList[index]["store"],
           icon: {
             content:
+              '<center style="position: absolute; width: 100px;">' +
               '<img src="' +
               markerImage +
               '" alt="" ' +
-              'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
-              '-webkit-user-select: none; position: absolute; width: 40px; height: 40px; left: 0px; top: 0px;">',
-            size: new naver.maps.Size(0, 0),
-            anchor: new naver.maps.Point(25, 25),
+              'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none;' +
+              '-webkit-user-select: none;  width: 30px; height: 30px; left: 0px; top: 0px;">' +
+              '<span style="font-size:' +
+              fontSize +
+              ';font-weight: 700;">' +
+              markerList[index]["store"] +
+              "</span>" +
+              "</center>",
+            size: new naver.maps.Size(30, 30),
+            anchor: new naver.maps.Point(50, 23),
+            origin: new naver.maps.Point(0, 0),
           },
           zIndex: 100,
         });
+
         markers.push(marker);
         markersInfo = markerList;
       }
@@ -150,6 +164,7 @@
         content: "",
       });
       map.addListener("click", function (e) {
+        checkSelectedMarker();
         if (infoWindow.getMap()) {
           infoWindow.close();
           createMarker.postMessage(false);
@@ -163,10 +178,7 @@
       naver.maps.Service.reverseGeocode(
         {
           coords: latlng,
-          orders: [
-            naver.maps.Service.OrderType.ADDR,
-            naver.maps.Service.OrderType.ROAD_ADDR,
-          ].join(","),
+          orders: [naver.maps.Service.OrderType.ROAD_ADDR].join(","),
         },
         function (status, response) {
           if (status === naver.maps.Service.Status.ERROR) {
@@ -283,13 +295,64 @@
       return !!(addition && addition.value);
     }
 
+    var selectedMarker;
+    var selectedMarkerIndex;
+
+    function checkSelectedMarker() {
+      if (selectedMarker) {
+        let markerImage;
+        switch (markersInfo[selectedMarkerIndex]["category"]["title"]) {
+          case "식당":
+            markerImage = markerImages[0];
+            break;
+          case "카페":
+            markerImage = markerImages[1];
+            break;
+        }
+        selectedMarker.setIcon({
+          content:
+            '<center style="position: absolute; width: 100px;">' +
+            '<img src="' +
+            markerImage +
+            '" alt="" ' +
+            'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none;' +
+            '-webkit-user-select: none;  width: 30px; height: 30px; left: 0px; top: 0px;">' +
+            '<span style="font-size:' +
+            fontSize +
+            ';font-weight: 700;">' +
+            markersInfo[selectedMarkerIndex]["store"] +
+            "</span>" +
+            "</center>",
+          size: new naver.maps.Size(30, 30),
+          anchor: new naver.maps.Point(50, 23),
+          origin: new naver.maps.Point(0, 0),
+        });
+        selectedMarker = undefined;
+      }
+    }
+
     function getClickHandler(index) {
       return function (e) {
         var marker = markers[index],
           markerInfo = markersInfo[index];
-        // console.log(JSON.stringify(markersInfo[index]));
-        map.setCenter(marker.position);
-        map.setZoom(map.zoom);
+
+        checkSelectedMarker();
+        marker.setIcon({
+          content:
+            '<img src="' +
+            "https://item.kakaocdn.net/do/437998cb670b87a9a8faca156155beeb8f324a0b9c48f77dbce3a43bd11ce785" +
+            '" alt="" ' +
+            'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+            '-webkit-user-select: none; position: absolute; width: 40px; height: 40px; left: 0px; top: 0px;">',
+          size: new naver.maps.Size(0, 0),
+          anchor: new naver.maps.Point(25, 25),
+        });
+
+        selectedMarker = marker;
+        selectedMarkerIndex = index;
+
+        map.panTo(e.coord);
+
         markerCallBack.postMessage(JSON.stringify({ markerInfo }));
       };
     }
