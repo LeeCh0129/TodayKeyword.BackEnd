@@ -279,21 +279,26 @@ export const patchStored = async (req, res) => {
   const { postId } = req.params;
   const storedPost = await Post.findById(postId).select("owner state");
   try {
-    if (storedPost.owner == req.user.userId && storedPost.state == "active") {
-      storedPost.state = "stored";
-      storedPost.save();
-      return res.status(200).json(storedPost);
+    if (storedPost.owner == req.user.userId) {
+      switch (storedPost.state) {
+        case "active":
+          storedPost.state = "stored";
+          storedPost.save();
+          return res.status(200).json(storedPost);
+          break;
+        case "deleted":
+          return res
+            .status(400)
+            .json({ errorMessage: "이미 삭제된 게시물입니다. " });
+          break;
+        case "stored":
+          storedPost.state = "active";
+          storedPost.save();
+          return res.status(200).json(storedPost);
+          break;
+      }
     }
-    if (storedPost.owner == req.user.userId && storedPost.state == "deleted") {
-      return res
-        .status(400)
-        .json({ errorMessage: "이미 삭제된 게시물입니다." });
-    }
-    if (storedPost.owner == req.user.userId && storedPost.state == "stored") {
-      return res
-        .status(400)
-        .json({ errorMessage: "이미 보관된 게시물입니다." });
-    }
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   } catch (e) {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
