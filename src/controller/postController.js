@@ -10,16 +10,27 @@ const numberOfPostsPerDay = 3;
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId).populate(postDefaultPopulate);
-  res.status(200).json(post);
+  try {
+    const post = await Post.findById(postId).populate(postDefaultPopulate);
+    return res.status(200).json(post);
+  } catch (e) {
+    return res
+      .status(400)
+      .json({ errorMessage: "데이터를 불러오는데 실패했습니다." });
+  }
 };
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find({ state: "active" })
-    .populate(postDefaultPopulate)
-    .sort({ createdAt: -1 });
-  console.log(posts);
-  res.status(200).json({ posts });
+  try {
+    const posts = await Post.find({ state: "active" })
+      .populate(postDefaultPopulate)
+      .sort({ createdAt: -1 });
+    res.status(200).json({ posts });
+  } catch (e) {
+    return res
+      .status(400)
+      .json({ errorMessage: "데이터를 불러오는데 실패했습니다." });
+  }
 };
 
 export const postCreatePost = async (req, res) => {
@@ -120,15 +131,50 @@ export const getComments = async (req, res) => {
 
 export const postCreateComment = async (req, res) => {
   try {
-    const user = await User.findOne({ firebaseId: req.user.uid });
     const { postId } = req.params;
-    const { parentComment, comment } = req.body;
+    const { parentCommentId, commentId } = req.body;
+    const { userId } = req.user;
+
+    const post = await Post.findById(postId).select("owner");
     const newComment = await Comment.create({
-      owner: user,
+      owner: userId,
       post: postId,
-      parentComment,
-      comment,
+      parentCommentId,
+      commentId,
     });
+    const parentComment = await Comment.findById(parentCommentId).select(
+      "owner"
+    );
+    Notification.create({
+      sender: userId,
+      receiver: post.owner,
+      message: "댓글을 남겼습니다.",
+      post: postId,
+      type: "review",
+    });
+    if (parentComment) {
+      Notification.create({
+        sender: userId,
+        receiver: parentComment.owner,
+        message: "대댓글을 남겼습니다.",
+        post: postId,
+        type: "comment",
+      });
+      const comments = await Notification.find({
+        parentComment: parentCommentId,
+      }).select("owner");
+      comments.forEach((comment) => {
+        if (comment.owner != userId) {
+          Notification.create({
+            sender: userId,
+            receiver: comment.owner,
+            message: "대댓글을 남겼습니다.",
+            post: postId,
+            type: "comment",
+          });
+        }
+      });
+    }
     res.status(200).json(newComment);
   } catch (e) {
     res.status(400).json({ errorMessage: "잘못된 요청입니다." });
