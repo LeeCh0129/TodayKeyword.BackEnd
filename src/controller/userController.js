@@ -81,6 +81,7 @@ export const getBookmark = async (req, res) => {
   const bookmark = await User.findById(req.params.userId).populate({
     path: "bookmarkPosts",
     model: "Post",
+    match: { state: "active" },
     populate: postDefaultPopulate,
   });
 
