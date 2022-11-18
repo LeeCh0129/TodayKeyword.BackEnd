@@ -7,6 +7,7 @@ import {
   getUser,
   deleteUser,
   getNotification,
+  getStored,
 } from "../controller/userController.js";
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.patch(
 router.get("/notification", ensureAuthorized, getNotification);
 router.get("/profile/:userId([0-9a-f]{24})", ensureAuthorized, getProfile);
 router.delete("/:userId([0-9a-f]{24})", ensureAuthorized, deleteUser);
+router.get("/stored", ensureAuthorized, getStored);
 
 export default router;

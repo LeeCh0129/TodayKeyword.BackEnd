@@ -15,7 +15,6 @@ import {
   getCategories,
   getKeywords,
   patchStored,
-  getStored,
 } from "../controller/postController.js";
 
 const router = express.Router();
@@ -65,4 +64,3 @@ router.get(
   getKeywords
 );
 router.patch("/:postId([0-9a-f]{24})/stored", ensureAuthorized, patchStored);
-router.get("/:userId([0-9a-f]{24})/stored", ensureAuthorized, getStored);

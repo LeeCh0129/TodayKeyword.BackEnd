@@ -340,24 +340,11 @@ export const patchStored = async (req, res) => {
         case "stored":
           storedPost.state = "active";
           storedPost.save();
-          return res.status(200).json(storedPost);
+          return res.status(200).json({ msg: "성공적으로 보관되었습니다." });
           break;
       }
     }
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
-  } catch (e) {
-    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
-  }
-};
-
-export const getStored = async (req, res) => {
-  const { userId } = req.params;
-  if (userId != req.user.userId) {
-    return res.status(400).json({ errorMessage: "게시글 작성자가 아닙니다." });
-  }
-  try {
-    const storedPost = await Post.find({ state: "stored", owner: userId });
-    return res.status(200).json({ storedPost });
   } catch (e) {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }

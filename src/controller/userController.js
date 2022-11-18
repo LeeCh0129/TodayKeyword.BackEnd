@@ -126,3 +126,15 @@ export const deleteUser = async (req, res) => {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };
+
+export const getStored = async (req, res) => {
+  try {
+    const storedPost = await Post.find({
+      state: "stored",
+      owner: req.user.userId,
+    }).populate(postDefaultPopulate);
+    return res.status(200).json(storedPost);
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
