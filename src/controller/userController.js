@@ -8,7 +8,7 @@ export const getUser = async (req, res) => {
   res.status(200).json(user);
 };
 
-export const signIn = async (req, res) => {
+export const postSignIn = async (req, res) => {
   const user = await User.findOne({ firebaseId: req.body.uid }).select(
     "_id state"
   );
@@ -22,7 +22,7 @@ export const signIn = async (req, res) => {
   return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
 };
 
-export const signUp = async (req, res) => {
+export const postSignUp = async (req, res) => {
   const user = req.body;
   const newUser = await User.create({
     service: user.service,

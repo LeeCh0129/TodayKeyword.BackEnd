@@ -272,7 +272,7 @@ const checkNumberOfPostsPerDay = async (userId) => {
   return true;
 };
 
-export const search = async (req, res) => {
+export const getSearch = async (req, res) => {
   try {
     let result;
     switch (req.query.type) {

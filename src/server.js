@@ -5,6 +5,7 @@ import userRouter from "./routers/userRouter.js";
 import postRouter from "./routers/postRouter.js";
 import markerRouter from "./routers/markerRouter.js";
 import pushRouter from "./routers/notificationRouter.js";
+import globalRouter from "./routers/globalRouter.js";
 import "dotenv/config";
 
 const app = express();
@@ -25,6 +26,7 @@ app.get("/map", (req, res) => {
   res.sendFile(process.cwd() + "/src/views/naver_map.html");
 });
 
+app.use("/", globalRouter);
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/marker", markerRouter);
