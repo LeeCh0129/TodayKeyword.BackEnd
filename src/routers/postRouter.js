@@ -12,11 +12,9 @@ import {
   patchLike,
   patchCommentLike,
   patchPost,
-  search,
   getCategories,
   getKeywords,
   patchStored,
-  getStored,
 } from "../controller/postController.js";
 
 const router = express.Router();
@@ -57,11 +55,12 @@ router.patch(
   patchCommentLike
 );
 
-router.get("/search", search);
-
 export default router;
 
 router.get("/categories", ensureAuthorized, getCategories);
-router.get("/keywords/:categoryId([0-9a-f]{24})", ensureAuthorized, getKeywords);
+router.get(
+  "/keywords/:categoryId([0-9a-f]{24})",
+  ensureAuthorized,
+  getKeywords
+);
 router.patch("/:postId([0-9a-f]{24})/stored", ensureAuthorized, patchStored);
-router.get("/:userId([0-9a-f]{24})/stored", ensureAuthorized, getStored);

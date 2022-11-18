@@ -8,7 +8,7 @@ export const getUser = async (req, res) => {
   res.status(200).json(user);
 };
 
-export const signIn = async (req, res) => {
+export const postSignIn = async (req, res) => {
   const user = await User.findOne({ firebaseId: req.body.uid }).select(
     "_id state"
   );
@@ -22,7 +22,7 @@ export const signIn = async (req, res) => {
   return res.status(200).json({ msg: "토큰 생성 완료", token: customToken });
 };
 
-export const signUp = async (req, res) => {
+export const postSignUp = async (req, res) => {
   const user = req.body;
   const newUser = await User.create({
     service: user.service,
@@ -122,6 +122,18 @@ export const deleteUser = async (req, res) => {
       deletedAt: Date.now(),
     });
     return res.status(200).json({ msg: "성공적으로 탈퇴가 완료되었습니다." });
+  } catch (e) {
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+  }
+};
+
+export const getStored = async (req, res) => {
+  try {
+    const storedPost = await Post.find({
+      state: "stored",
+      owner: req.user.userId,
+    }).populate(postDefaultPopulate);
+    return res.status(200).json(storedPost);
   } catch (e) {
     return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
