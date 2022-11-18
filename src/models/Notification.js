@@ -53,7 +53,8 @@ notificationSchema.pre("find", function (next) {
       path: "post",
       model: "Post",
       select: "imageUrls",
-    });
+    })
+    .sort({ createdAt: -1 });
   next();
 });
 
