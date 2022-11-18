@@ -84,36 +84,17 @@
           markerList[index]["position"]["lat"],
           markerList[index]["position"]["lng"]
         );
-        let markerImage;
-        switch (markerList[index]["category"]["title"]) {
-          case "식당":
-            markerImage = markerImages[0];
-            break;
-          case "카페":
-            markerImage = markerImages[1];
-            break;
-        }
-
         var marker = new naver.maps.Marker({
           map: map,
           position: position,
           title: markerList[index]["store"],
           icon: {
-            content:
-              '<center style="position: absolute; width: 100px;">' +
-              '<img src="' +
-              markerImage +
-              '" alt="" ' +
-              'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none;' +
-              '-webkit-user-select: none;  width: 30px; height: 30px; left: 0px; top: 0px;">' +
-              '<span style="font-size:' +
-              fontSize +
-              ';font-weight: 700;">' +
-              markerList[index]["store"] +
-              "</span>" +
-              "</center>",
+            content: getMarkerIcon(
+              getMarkerImage(markerList[index]["category"]["title"]),
+              ""
+            ),
             size: new naver.maps.Size(30, 30),
-            anchor: new naver.maps.Point(50, 23),
+            anchor: new naver.maps.Point(15, 15),
             origin: new naver.maps.Point(0, 0),
           },
           zIndex: 100,
@@ -298,35 +279,43 @@
     var selectedMarker;
     var selectedMarkerIndex;
 
+    function getMarkerImage(category) {
+      let markerImage;
+      switch (category) {
+        case "식당":
+          markerImage = markerImages[0];
+          break;
+        case "카페":
+          markerImage = markerImages[1];
+          break;
+      }
+      return markerImage;
+    }
+
+    function getMarkerIcon(markerImage, markerTitle) {
+      return (
+        '<img src="' +
+        markerImage +
+        '" alt="" style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none;' +
+        '-webkit-user-select: none;  width: 25px; height: 25px; left: 0px; top: 0px;">'
+      );
+    }
+
     function checkSelectedMarker() {
       if (selectedMarker) {
-        let markerImage;
-        switch (markersInfo[selectedMarkerIndex]["category"]["title"]) {
-          case "식당":
-            markerImage = markerImages[0];
-            break;
-          case "카페":
-            markerImage = markerImages[1];
-            break;
-        }
         selectedMarker.setIcon({
-          content:
-            '<center style="position: absolute; width: 100px;">' +
-            '<img src="' +
-            markerImage +
-            '" alt="" ' +
-            'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none;' +
-            '-webkit-user-select: none;  width: 30px; height: 30px; left: 0px; top: 0px;">' +
-            '<span style="font-size:' +
-            fontSize +
-            ';font-weight: 700;">' +
-            markersInfo[selectedMarkerIndex]["store"] +
-            "</span>" +
-            "</center>",
+          content: getMarkerIcon(
+            getMarkerImage(
+              markersInfo[selectedMarkerIndex]["category"]["title"]
+            ),
+            ""
+          ),
+
           size: new naver.maps.Size(30, 30),
-          anchor: new naver.maps.Point(50, 23),
+          anchor: new naver.maps.Point(15, 15),
           origin: new naver.maps.Point(0, 0),
         });
+        selectedMarker.setZIndex(100);
         selectedMarker = undefined;
       }
     }
@@ -338,15 +327,15 @@
 
         checkSelectedMarker();
         marker.setIcon({
-          content:
-            '<img src="' +
-            "https://item.kakaocdn.net/do/437998cb670b87a9a8faca156155beeb8f324a0b9c48f77dbce3a43bd11ce785" +
-            '" alt="" ' +
-            'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
-            '-webkit-user-select: none; position: absolute; width: 40px; height: 40px; left: 0px; top: 0px;">',
-          size: new naver.maps.Size(0, 0),
-          anchor: new naver.maps.Point(25, 25),
+          content: getMarkerIcon(
+            getMarkerImage(markersInfo[index]["category"]["title"]),
+            markersInfo[index]["store"]
+          ),
+          size: new naver.maps.Size(30, 30),
+          anchor: new naver.maps.Point(15, 15),
+          origin: new naver.maps.Point(0, 0),
         });
+        marker.setZIndex(1000);
 
         selectedMarker = marker;
         selectedMarkerIndex = index;
