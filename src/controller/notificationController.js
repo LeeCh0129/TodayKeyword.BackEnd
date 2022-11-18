@@ -20,7 +20,7 @@ export const sendNotification = async (notification) => {
   let message = {
     notification: {
       title: "☘️오늘의 키워드",
-      body: `${notification.sender.name}님이 ${notification.receiver.name}님의 ${type}에 ${notification.message}`,
+      body: `${notification.sender.name}님이 ${type}에 ${notification.message}`,
     },
     token: notification.receiver.deviceToken,
   };
