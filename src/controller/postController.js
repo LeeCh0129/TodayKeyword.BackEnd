@@ -34,25 +34,30 @@ export const getPosts = async (req, res) => {
 };
 
 export const postCreatePost = async (req, res) => {
-  let imageUrls = [];
   const { userId } = req.user;
   if (!checkNumberOfPostsPerDay(userId)) {
     return res.status(400).json({
       errorMessage: `하루에 최대 ${numberOfPostsPerDay}개 이상 작성하실 수 없습니다`,
     });
   }
-
+  let imageUrls = [];
   req.files.forEach((file) => imageUrls.push(file.key));
   const { marker, review, keywords, rating } = req.body;
-  const post = await Post.create({
-    owner: userId,
-    imageUrls,
-    marker,
-    review,
-    keywords,
-    rating,
-  });
-  res.json({ status: "success", post });
+  try {
+    const post = await Post.create({
+      owner: userId,
+      imageUrls,
+      marker,
+      review,
+      keywords,
+      rating,
+    });
+    return res.json({ status: "success", post });
+  } catch (e) {
+    return res
+      .status(400)
+      .json({ errorMessage: "게시글 작성에 실패했습니다." });
+  }
 };
 
 export const patchLike = async (req, res) => {
@@ -132,16 +137,17 @@ export const getComments = async (req, res) => {
 export const postCreateComment = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { parentCommentId, commentId } = req.body;
+    const { parentCommentId, comment } = req.body;
     const { userId } = req.user;
 
     const post = await Post.findById(postId).select("owner");
-    const newComment = await Comment.create({
+    let newComment = await Comment.create({
       owner: userId,
       post: postId,
-      parentCommentId,
-      commentId,
+      parentComment: parentCommentId,
+      comment,
     });
+    newComment = await newComment.populate({ path: "owner", ref: "User" });
     const parentComment = await Comment.findById(parentCommentId).select(
       "owner"
     );
@@ -160,7 +166,7 @@ export const postCreateComment = async (req, res) => {
         post: postId,
         type: "comment",
       });
-      const comments = await Notification.find({
+      const comments = await Comment.find({
         parentComment: parentCommentId,
       }).select("owner");
       comments.forEach((comment) => {
@@ -175,9 +181,9 @@ export const postCreateComment = async (req, res) => {
         }
       });
     }
-    res.status(200).json(newComment);
+    return res.status(200).json(newComment);
   } catch (e) {
-    res.status(400).json({ errorMessage: "잘못된 요청입니다." });
+    return res.status(400).json({ errorMessage: "잘못된 요청입니다." });
   }
 };
 
