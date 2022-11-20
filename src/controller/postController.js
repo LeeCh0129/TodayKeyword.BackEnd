@@ -335,8 +335,8 @@ export const patchStored = async (req, res) => {
       switch (storedPost.state) {
         case "active":
           storedPost.state = "stored";
-          storedPost.save();
-          return res.status(200).json(storedPost);
+          storedPost.save({ timestamps: { updatedAt: false } });
+          return res.status(200).json({ msg: "성공적으로 보관되었습니다." });
           break;
         case "deleted":
           return res
@@ -345,8 +345,8 @@ export const patchStored = async (req, res) => {
           break;
         case "stored":
           storedPost.state = "active";
-          storedPost.save();
-          return res.status(200).json({ msg: "성공적으로 보관되었습니다." });
+          storedPost.save({ timestamps: { updatedAt: false } });
+          return res.status(200).json({ msg: "보관이 해제되었습니다." });
           break;
       }
     }
